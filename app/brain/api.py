@@ -9,6 +9,8 @@ LLM is healthy is not a fallback (nothing failed); with the LLM off/down it is r
 """
 from __future__ import annotations
 
+import re
+
 from typing import Any, Callable, Optional
 
 from app.brain import facts as F
@@ -115,6 +117,8 @@ class Brain:
                 self._done(True)
                 return ReplyIntent.OTHER, 0.3
             clean = (text or "").replace("<victim_text>", "").replace("</victim_text>", "")[:500]
+            # Never send spoken OTPs / phone numbers to the API (DPDP minimisation).
+            clean = re.sub(r"\d(?:[\s-]?\d){3,}", "[digits removed]", clean)
             schema = _obj(intent={"type": "string", "enum": [i.value for i in ReplyIntent]},
                           confidence={"type": "number", "minimum": 0, "maximum": 1})
             out = None

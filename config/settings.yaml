@@ -5,13 +5,11 @@ app:
   demo_label: "PROTOTYPE — SIMULATED DATA"
 
 llm:
-  provider: ollama
-  base_url: http://127.0.0.1:11434
-  model: qwen3:4b          # alternatives: gemma3:4b ; set to "none" to force templates
-  think: false             # disable reasoning traces for latency
-  temperature: 0.2
-  timeout_s: 8
-  max_tokens: 300
+  provider: anthropic      # Claude API via the `anthropic` SDK; key from ANTHROPIC_API_KEY
+  model: claude-opus-5-5   # set to "none" to force templates (no network)
+  effort: low              # low effort keeps latency down for short notices
+  timeout_s: 8             # per call, no retries; on timeout the template is used
+  max_tokens: 2000         # includes thinking tokens; outputs themselves are short
 
 langs: [en, hi, te]        # te is optional; templates must exist for every listed lang
 default_lang: en

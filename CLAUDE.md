@@ -5,7 +5,7 @@ fraud alert into a protected victim + a ready evidence pack in minutes, with a h
 officer approving every money/status decision. Full spec: SPEC.md. Build plan: HANDOFF.md.
 
 ## Stack
-Python 3.11+, FastAPI, SQLite (stdlib sqlite3), pydantic v2, SSE (sse-starlette), Ollama (qwen3:4b).
+Python 3.11+, FastAPI, SQLite (stdlib sqlite3), pydantic v2, SSE (sse-starlette), Anthropic Claude API (anthropic SDK).
 Frontends are plain HTML + vanilla JS (no build step, no npm). Phone = Chrome via `adb reverse`.
 
 ## Commands

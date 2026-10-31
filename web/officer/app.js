@@ -177,7 +177,7 @@
       var p = $('llm-pill');
       var up = d && d.llm === 'up';
       p.className = 'pill ' + (up ? 'pill-green' : 'pill-amber');
-      p.textContent = up ? 'SLM up' : 'templates';
+      p.textContent = up ? 'Claude up' : 'templates';
     }).catch(function () {});
   }
 

@@ -1,20 +1,21 @@
-"""Ollama client (sync, httpx). Returns parsed JSON dicts or None; never raises.
+"""Claude API client (Anthropic Python SDK). Returns parsed JSON dicts or None; never raises.
 
-If settings llm.model == "none" the network is never touched.
+If settings llm.model == "none" the network is never touched (tests, offline demos).
+Credentials come from the environment (ANTHROPIC_API_KEY, or an `ant auth login` profile).
+No key / no network / timeout / refusal / bad JSON -> None, and the caller uses templates.
 Settings are read at call time so tests / env overrides take effect.
 """
 from __future__ import annotations
 
 import json
-import re
+import threading
 import time
 from typing import Any, Optional
 
-import httpx
-
 from app.config import SETTINGS
 
-_THINK_RE = re.compile(r"<think>.*?</think>", re.S | re.I)
+_UP_TTL_S = 60.0     # cache a successful health check
+_DOWN_TTL_S = 15.0   # retry a failed one sooner
 
 
 def _cfg() -> dict[str, Any]:
@@ -22,10 +23,9 @@ def _cfg() -> dict[str, Any]:
 
 
 def extract_json(raw: str) -> Optional[dict[str, Any]]:
-    """Strip reasoning text and return the first JSON object found in `raw`."""
+    """Return the first JSON object found in `raw` (structured outputs normally give pure JSON)."""
     if not raw:
         return None
-    raw = _THINK_RE.sub("", raw)
     dec = json.JSONDecoder()
     i = raw.find("{")
     while i != -1:
@@ -39,8 +39,23 @@ def extract_json(raw: str) -> Optional[dict[str, Any]]:
     return None
 
 
-class OllamaClient:
+def strict_schema(schema: Any) -> Any:
+    """Make a JSON schema acceptable to structured outputs: closed objects, no numeric bounds
+    (code clamps numbers anyway)."""
+    if isinstance(schema, list):
+        return [strict_schema(s) for s in schema]
+    if not isinstance(schema, dict):
+        return schema
+    out = {k: strict_schema(v) for k, v in schema.items() if k not in ("minimum", "maximum")}
+    if out.get("type") == "object":
+        out.setdefault("additionalProperties", False)
+    return out
+
+
+class ClaudeClient:
     def __init__(self) -> None:
+        self._client: Any = None
+        self._lock = threading.Lock()
         self._up: Optional[bool] = None
         self._up_at: float = 0.0
 
@@ -53,17 +68,24 @@ class OllamaClient:
     def enabled(self) -> bool:
         return self.model.lower() != "none"
 
+    def _get_client(self) -> Any:
+        with self._lock:
+            if self._client is None:
+                import anthropic  # imported lazily: tests with model "none" never load it
+                self._client = anthropic.Anthropic(max_retries=0)
+            return self._client
+
     # -- health -----------------------------------------------------------
     def is_up(self) -> bool:
-        """True if the model is enabled and the Ollama server answers /api/tags (cached 10 s)."""
+        """True if the model is enabled and the API accepts our credentials (cached)."""
         if not self.enabled:
             return False
         now = time.monotonic()
-        if self._up is not None and now - self._up_at < 10:
+        if self._up is not None and now - self._up_at < (_UP_TTL_S if self._up else _DOWN_TTL_S):
             return self._up
         try:
-            r = httpx.get(f"{_cfg().get('base_url', 'http://127.0.0.1:11434')}/api/tags", timeout=2.0)
-            self._up = r.status_code == 200
+            self._get_client().with_options(timeout=3.0).models.retrieve(self.model)
+            self._up = True
         except Exception:
             self._up = False
         self._up_at = now
@@ -74,74 +96,45 @@ class OllamaClient:
 
     # -- warm-up ----------------------------------------------------------
     def warm(self) -> bool:
-        """Load the model into memory with one tiny chat (+ keep_alive). Never raises."""
-        if not self.enabled:
-            return False
+        """Open the HTTPS connection and validate the key once at startup. Never raises."""
         try:
-            if not self.is_up():
-                return False
-            cfg = _cfg()
-            r = httpx.post(f"{cfg.get('base_url', 'http://127.0.0.1:11434')}/api/chat", json={
-                "model": self.model, "messages": [{"role": "user", "content": "ok"}], "stream": False,
-                "keep_alive": cfg.get("keep_alive", "30m"), "options": {"num_predict": 1},
-            }, timeout=float(cfg.get("warm_timeout_s", 60)))
-            return r.status_code == 200
+            return self.is_up()
         except Exception:
             return False
 
     # -- chat -------------------------------------------------------------
     def chat_json(self, system: str, user: str, schema: dict[str, Any]) -> Optional[dict[str, Any]]:
-        """One structured chat call. Returns the parsed JSON object or None on any problem."""
+        """One structured call. Returns the parsed JSON object or None on any problem."""
         if not self.enabled or not self.is_up():
             return None
         cfg = _cfg()
-        timeout = float(cfg.get("timeout_s", 8))
-        deadline = time.monotonic() + timeout
-        url = f"{cfg.get('base_url', 'http://127.0.0.1:11434')}/api/chat"
-        send_think = True
-        fmt: Any = schema
-        for _ in range(3):  # initial + up to 2 compatibility retries
-            remaining = deadline - time.monotonic()
-            if remaining <= 0.2:
-                return None
-            body: dict[str, Any] = {
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": user},
-                ],
-                "format": fmt,
-                "stream": False,
-                "options": {
-                    "temperature": cfg.get("temperature", 0.2),
-                    "num_predict": cfg.get("max_tokens", 300),
+        try:
+            import anthropic
+            resp = self._get_client().with_options(timeout=float(cfg.get("timeout_s", 8))).messages.create(
+                model=self.model,
+                max_tokens=int(cfg.get("max_tokens", 2000)),
+                system=system,
+                messages=[{"role": "user", "content": user}],
+                output_config={
+                    "effort": str(cfg.get("effort", "low")),
+                    "format": {"type": "json_schema", "schema": strict_schema(schema)},
                 },
-            }
-            if send_think:
-                body["think"] = bool(cfg.get("think", False))
-            try:
-                r = httpx.post(url, json=body, timeout=remaining)
-            except httpx.ConnectError:
-                self._mark_down()
-                return None
-            except Exception:
-                return None
-            if r.status_code == 400:
-                if send_think:
-                    send_think = False        # server rejects `think`: retry without it
-                    continue
-                if not isinstance(fmt, str):
-                    fmt = "json"              # server rejects schema format: plain json mode
-                    continue
-                return None
-            if r.status_code != 200:
-                return None
-            try:
-                content = r.json().get("message", {}).get("content", "")
-            except Exception:
-                return None
-            return extract_json(content)
-        return None
+            )
+        except anthropic.AuthenticationError:
+            self._mark_down()
+            return None
+        except anthropic.APIConnectionError:  # includes APITimeoutError
+            return None
+        except Exception:
+            return None
+        if resp.stop_reason != "end_turn":  # refusal, max_tokens, ... -> template
+            return None
+        text = next((b.text for b in resp.content if b.type == "text"), "")
+        try:
+            out = json.loads(text)
+            return out if isinstance(out, dict) else None
+        except ValueError:
+            return extract_json(text)
 
 
-llm = OllamaClient()
+llm = ClaudeClient()

@@ -445,9 +445,9 @@ This ensures 100% compliance with RBI's customer protection circular and the FRE
     add_header(s5, "Robust, Privacy-First Architecture", "Technology & Tech Stack")
 
     tech_blocks = [
-        ("🤖", "Local SLM & Privacy Layer", C_PAYTM_CYAN, [
-            ("Ollama Qwen 3 (4B) / Qwen 2.5", "Local small language model for intent classification & risk explanation without cloud latency."),
-            ("Zero Data Leakage (Edge AI)", "PII masked prior to model input; no financial data leaves bank servers (DPDP Act 2023 compliant)."),
+        ("🤖", "Claude API & Privacy Layer", C_PAYTM_CYAN, [
+            ("Anthropic Claude API (Opus 5.5)", "Claude via the anthropic SDK (effort low) for risk wording & reply classification; 8 s budget per call."),
+            ("Masked Facts Only", "Only a masked fact sheet & digit-redacted replies reach the API; no names, numbers, VPAs, amounts or IDs."),
             ("Fail-Safe Regex Guardrails", "Regex interceptor blocks banned patterns (OTP/PIN/fee); falls back to deterministic templates.")
         ]),
         ("⚡", "High-Throughput Core Engine", C_DEEP_BLUE, [
@@ -507,7 +507,7 @@ This ensures 100% compliance with RBI's customer protection circular and the FRE
 
     set_notes(s5, """
 Our technical stack is built for financial scale and uncompromising privacy.
-We run a local Small Language Model—Ollama Qwen—on-premise. All PII is masked before reaching the model, ensuring zero financial data leaves the bank's VPC.
+Wording and reply classification run on the Anthropic Claude API. Only a masked fact sheet and digit-redacted replies are sent: no raw names, mobile numbers, VPAs, amounts or IDs — code fills those in. A production rollout needs a DPA and data-residency review with the partner.
 Our backend is Python 3.12 and FastAPI with a deterministic Finite State Machine and SSE event streaming.
 Multilingual voice is powered by browser-native Web Speech STT and TTS in Hindi, Telugu, and English.
 And every single action is written to an immutable SHA-256 cryptographic hash chain, fulfilling RBI's FREE-AI auditability mandate.
@@ -523,7 +523,7 @@ And every single action is written to an immutable SHA-256 cryptographic hash ch
     usps = [
         ("⚡", "True Autonomy, Not Just Q&A", "While conventional chatbots provide static FAQ links while money drains, Guardian executes autonomous Tier-1 containment (session kill, payment hold) in milliseconds."),
         ("🛡️", "SIM-Swap Aware Trust Rail", "Contextual awareness detects if a SIM was changed in the last 72 hours (SIM_CHANGE_72H). If swapped, phone verification is marked untrusted, defeating OTP and call hijacking."),
-        ("🔒", "100% Local DPDP Compliance", "Runs on local Small Language Models (SLMs) with masked PII. Zero financial data or customer identity is sent to external cloud APIs, satisfying strict Indian banking regulations."),
+        ("🔒", "Privacy by Minimisation (DPDP)", "The Claude API sees only a masked fact sheet and digit-redacted replies; raw names, mobile numbers, VPAs, amounts and IDs are filled in by code. Production needs a DPA / data-residency review."),
         ("🤝", "Symbiotic Human-AI Teammate", "Automates 95% of manual evidence gathering and triage, delivering a single-click dispute dossier with SLA countdown timers to human fraud officers."),
         ("📋", "National 1930 / CFCFRMS Bridge", "Transforms panicked victims into effective reporters by auto-generating correctly formatted NCRP complaint fields and capturing national acknowledgement numbers.")
     ]
@@ -558,7 +558,7 @@ And every single action is written to an immutable SHA-256 cryptographic hash ch
 What sets Golden Hour Guardian apart?
 First, real autonomy: it doesn't just chat, it acts.
 Second, SIM-swap intelligence: if a fraudster swapped the victim's SIM, calling the registered number is useless. Guardian recognizes this and verifies via the trusted app instead.
-Third, local edge AI: 100% compliant with the DPDP Act.
+Third, privacy by minimisation: the Claude API only ever sees masked facts, never raw identities, numbers or amounts.
 Fourth, symbiotic collaboration: it prepares the evidence and lets the human officer approve partner bank disputes with one click.
 And fifth, it turns panicked victims into empowered reporters by pre-filling national 1930 cybercrime complaints.
 """)
@@ -675,7 +675,7 @@ And human fraud officers experience an 8x to 10x throughput multiplier, meaning 
         ("💰", "Monetization Streams", C_EMERALD, [
             ("Tiered Enterprise SaaS", "Monthly subscription fee per active monitored user / per fraud alert volume processed."),
             ("Value-Share Recovery Model", "Contingency success fee (2-5%) on verified fraudulent funds preserved or reclaimed via CFCFRMS."),
-            ("Partner Integration License", "Custom on-premise deployment and core-banking dispute pipeline integration.")
+            ("Partner Integration License", "Custom deployment in the partner's environment (Claude API under a partner DPA) and core-banking dispute pipeline integration.")
         ]),
         ("📈", "ROI & Unit Economics", C_DEEP_BLUE, [
             ("Tenfold Cost Offset", "Preventing just 10 account takeovers per month (avg loss ₹50,000) saves ₹5,00,000/month in direct liability."),
@@ -744,8 +744,8 @@ The unit economics are compelling: if a partner bank prevents just 10 account ta
          "Adversary attempts prompt injection to trick LLM into promising refund or bypassing policy.",
          "Regex guardrail & FSM intercept malicious syntax -> Blocked by Policy Engine -> Emits POLICY_BLOCKED event -> Dispatches officer callback."),
         ("⚙️", "Scenario: 'fallback' (Zero-Downtime)", C_HEADING_DARK, C_LIGHT_BG,
-         "Local Ollama SLM offline or response latency exceeds timeout threshold.",
-         "Engine automatically switches to deterministic fallback templates -> Zero service disruption -> Emits LLM_FALLBACK_USED audit event.")
+         "Claude API unreachable, slow, or no API key configured.",
+         "8 s budget per call, no retries -> Engine switches to deterministic templates -> Zero service disruption -> Emits LLM_FALLBACK_USED audit event.")
     ]
 
     for idx, (icon, s_title, s_col, s_tint, s_story, s_res) in enumerate(scenarios):
@@ -792,7 +792,7 @@ In our demo, we showcase four critical scenarios:
 First, an Account Takeover where funds are contained in 48 seconds, evidence is packaged, and the human officer approves the dispute.
 Second, a genuine high-value purchase verified and released in 20 seconds.
 Third, a red-team adversarial injection attack that is intercepted and blocked by our policy guardrails.
-And fourth, zero-downtime resiliency: even if the local LLM goes offline, the system continues running flawlessly on deterministic templates.
+And fourth, zero-downtime resiliency: even if the Claude API is unreachable, slow or has no key, each call gives up after 8 seconds and the system continues on deterministic templates.
 """)
 
     # =========================================================================

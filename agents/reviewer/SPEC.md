@@ -16,10 +16,10 @@ judge find a hole? You did not write this code; judge it on its own terms.
 1. **Tier integrity** — any path where a Tier-2/3 side effect can run without `policy.check` passing (direct partner calls, missing decision check, wrong case id accepted).
 2. **LLM authority** — can model output change state, pick an action, or inject numbers/links that reach the victim unguarded?
 3. **Trusted-channel rule** — can a "yes" from an untrusted channel release a hold?
-4. **Privacy** — raw names/mobiles in prompts, logs, SSE or the evidence pack beyond masking.
+4. **Privacy** — raw names/mobiles/VPAs/amounts/IDs in prompts sent to the Claude API, or in logs, SSE or the evidence pack beyond masking.
 5. **Victim copy** — any promise ("you'll get your money back"), "frozen", fear language, unclear 1930 steps, wrong links.
 6. **Branding/impersonation** — anything that looks like Paytm or a bank.
-7. **Demo robustness** — Ollama down, Wi-Fi down, phone screen lock, TTS autoplay, SSE reconnect.
+7. **Demo robustness** — Claude API down / no key, Wi-Fi down, phone screen lock, TTS autoplay, SSE reconnect.
 8. **Claims** — every number in the UI/docs traceable to RESEARCH.md or a measured metric; baseline labelled as simulated.
 
 ## Output — `REVIEW.md`

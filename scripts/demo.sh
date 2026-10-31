@@ -26,7 +26,7 @@ echo "== 0. server check"
 HEALTH="$(api_get /health)" || die "server not answering at $BASE. Start it with: make demo-run"
 [ "$(echo "$HEALTH" | jf 'd["ok"]')" = "True" ] || die "/health not ok: $HEALTH"
 LLM_MODE="$(echo "$HEALTH" | jf 'd["llm"]')"
-if [ "$LLM_MODE" = "up" ]; then LLM_LABEL="SLM up (qwen3:4b)"; else LLM_LABEL="templates (LLM $LLM_MODE)"; fi
+if [ "$LLM_MODE" = "up" ]; then LLM_LABEL="Claude up (Claude API)"; else LLM_LABEL="templates (LLM $LLM_MODE)"; fi
 echo "  $BASE ok — wording: $LLM_LABEL"
 
 echo "== 1. reset synthetic data"

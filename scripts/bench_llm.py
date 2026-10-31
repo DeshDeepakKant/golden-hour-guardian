@@ -29,9 +29,9 @@ def main(runs: int = 10) -> None:
         "decision_rationale": lambda: brain.decision_rationale(case, Action.RAISE_DISPUTE),
         "ncrp_guidance": lambda: brain.ncrp_guidance(pack, "en"),
     }
-    print(f"model={llm.model}  server_up={brain.is_up()}  runs={runs}")
+    print(f"model={llm.model}  api_up={brain.is_up()}  runs={runs}")
     if llm.enabled and not brain.is_up():
-        print("NOTE: Ollama not reachable; all calls use templates.")
+        print("NOTE: Claude API not reachable (no ANTHROPIC_API_KEY or no network); all calls use templates.")
     print(f"{'method':24s} {'p50 ms':>9s} {'p95 ms':>9s} {'fallback':>9s}")
     total_fb = total = 0
     for name, call in calls.items():

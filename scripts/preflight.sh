@@ -6,7 +6,6 @@ ok()   { printf '  \033[32m✔\033[0m %s\n' "$*"; }
 bad()  { printf '  \033[31m✘\033[0m %s\n' "$*"; FAIL=1; }
 warn() { printf '  \033[33m!\033[0m %s\n' "$*"; }
 FAIL=0
-MODEL="${GUARDIAN_LLM_MODEL:-qwen3:4b}"
 
 echo "== Core tools"
 if command -v python3 >/dev/null; then
@@ -17,18 +16,12 @@ else bad "python3 not found"; fi
 for t in git make curl; do command -v $t >/dev/null && ok "$t" || bad "$t not found (sudo apt install $t)"; done
 command -v claude >/dev/null && ok "claude CLI $(claude --version 2>/dev/null | head -1)" || bad "Claude Code CLI not found"
 
-echo "== Local model (Ollama)"
-if command -v ollama >/dev/null; then
-  ok "ollama installed"
-  if curl -s --max-time 2 http://127.0.0.1:11434/api/tags >/dev/null; then
-    ok "ollama server running"
-    curl -s http://127.0.0.1:11434/api/tags | grep -q "\"${MODEL}\"" && ok "model ${MODEL} pulled" \
-      || warn "model ${MODEL} not pulled — run: ollama pull ${MODEL}"
-  else warn "ollama not running — start it: ollama serve (or systemctl start ollama)"; fi
-else warn "ollama not installed — demo still works on templates; install from ollama.com for the SLM"; fi
-if command -v nvidia-smi >/dev/null; then ok "GPU: $(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader | head -1)"
-else warn "no NVIDIA GPU detected — a 4B model on CPU is slower; check 'make bench' latency"; fi
-free -g 2>/dev/null | awk '/Mem:/{ if ($2>=8) print "  \033[32m✔\033[0m RAM " $2 " GB"; else print "  \033[33m!\033[0m RAM " $2 " GB (8+ recommended for a 4B model)"}'
+echo "== Claude API (optional — wording + reply classification)"
+if [ -n "${ANTHROPIC_API_KEY:-}" ]; then ok "ANTHROPIC_API_KEY is set"
+else warn "ANTHROPIC_API_KEY not set — demo still works on templates"; fi
+code=$(curl -s --max-time 3 -o /dev/null -w '%{http_code}' https://api.anthropic.com 2>/dev/null)
+if [ -n "$code" ] && [ "$code" != "000" ]; then ok "api.anthropic.com reachable (HTTP $code)"
+else warn "api.anthropic.com not reachable — demo still works on templates"; fi
 
 echo "== Android"
 if command -v adb >/dev/null; then

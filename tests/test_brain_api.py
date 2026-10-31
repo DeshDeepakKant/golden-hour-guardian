@@ -33,12 +33,11 @@ def test_model_none_is_fast_and_flags_fallback():
 
 
 def test_no_network_when_model_none(monkeypatch):
-    import httpx
+    from app.brain import llm as llm_mod
 
     def boom(*a, **k):
         raise AssertionError("network used")
-    monkeypatch.setattr(httpx, "get", boom)
-    monkeypatch.setattr(httpx, "post", boom)
+    monkeypatch.setattr(llm_mod.llm, "_get_client", boom)
     for call in _calls():
         call()
     assert brain.is_up() is False

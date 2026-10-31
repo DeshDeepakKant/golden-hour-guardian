@@ -112,3 +112,6 @@ Fix: don't tap it live unless the venue Wi-Fi has been checked; keep a screensho
 | S6 | FIXED — city from earliest non-trusted device; "Between {first} and {time}" (single-time variant) | app/brain/facts.py, templates.py, api.py |
 | N5 | FIXED — `make demo-run` (no --reload) | Makefile |
 | N1–N4, N6 | Deferred (not selected) | — |
+
+Update (2026-10-31): Ollama was replaced by the Anthropic Claude API (see HANDOFF.md). M4's open item
+is now "`make bench` with ANTHROPIC_API_KEY set on the demo laptop".

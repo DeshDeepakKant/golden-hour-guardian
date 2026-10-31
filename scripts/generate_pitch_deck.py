@@ -348,9 +348,9 @@ def create_deck(output_path="Golden_Hour_Guardian_Pitch_Deck.pptx"):
     add_header(s5, "Robust, Privacy-First Architecture", "Technology & Tech Stack")
 
     tech_cards = [
-        ("🤖 Local SLM & Guardrails", C_PAYTM_BLUE, [
-            ("Ollama Qwen 3 (4B) / Qwen 2.5", "Local small language model for intent classification & risk explanation. No cloud latency."),
-            ("Zero Data Leakage (Edge AI)", "PII masked prior to model input; no financial data leaves bank servers (DPDP Act compliant)."),
+        ("🤖 Claude API & Guardrails", C_PAYTM_BLUE, [
+            ("Anthropic Claude API (Opus 5.5)", "Claude via the anthropic SDK (effort low) for risk wording & reply classification; 8 s budget per call."),
+            ("Masked Facts Only", "Only a masked fact sheet & digit-redacted replies reach the API; no names, numbers, VPAs, amounts or IDs."),
             ("Fail-Safe Regex Guardrails", "Regex scanner intercepts banned tokens (OTP/PIN/fee). Instant fallback to deterministic templates.")
         ]),
         ("⚡ High-Throughput Core Engine", C_NAVY_HEADING, [
@@ -415,7 +415,7 @@ def create_deck(output_path="Golden_Hour_Guardian_Pitch_Deck.pptx"):
     usps = [
         ("⚡", "True Autonomy, Not Just Q&A", "Unlike conventional chatbots that provide static FAQ links while money drains, Guardian executes autonomous Tier-1 containment (session kill, payment hold) in milliseconds."),
         ("🛡️", "SIM-Swap Aware Trust Rail", "Contextual awareness detects if a SIM was changed in the last 72 hours (SIM_CHANGE_72H). If swapped, phone verification is marked untrusted, defeating OTP/call hijacking."),
-        ("🔒", "100% Local DPDP Compliance", "Runs on local Small Language Models (SLMs) with masked PII. Zero financial data or customer identity is sent to external API clouds, satisfying strict Indian banking regulations."),
+        ("🔒", "Privacy by Minimisation (DPDP)", "The Claude API sees only a masked fact sheet and digit-redacted replies; raw names, mobile numbers, VPAs, amounts and IDs are filled in by code. Production needs a DPA / data-residency review."),
         ("🤝", "Symbiotic Human-AI Teammate", "Automates 95% of manual evidence gathering and triage, delivering a single-click dispute dossier with SLA countdown timers to human fraud officers."),
         ("📋", "National 1930 / CFCFRMS Bridge", "Transforms panicked victims into effective reporters by auto-generating correctly formatted NCRP complaint fields and acknowledging national complaint numbers.")
     ]
@@ -545,7 +545,7 @@ def create_deck(output_path="Golden_Hour_Guardian_Pitch_Deck.pptx"):
         ("💰 Monetization Streams", C_SUCCESS, [
             ("Tiered Enterprise SaaS", "Monthly subscription fee per active monitored user / per fraud alert volume processed."),
             ("Value-Share Recovery Model", "Contingency success fee (2-5%) on verified fraudulent funds preserved or reclaimed via CFCFRMS."),
-            ("Partner Integration License", "Custom on-premise deployment and core-banking dispute pipeline integration.")
+            ("Partner Integration License", "Custom deployment in the partner's environment (Claude API under a partner DPA) and core-banking dispute pipeline integration.")
         ]),
         ("📈 ROI & Unit Economics", C_PURPLE, [
             ("Tenfold Cost Offset", "Preventing just 10 account takeovers per month (avg loss ₹50,000) saves ₹5,00,000/month in direct liability."),
@@ -603,8 +603,8 @@ def create_deck(output_path="Golden_Hour_Guardian_Pitch_Deck.pptx"):
          "Adversary attempts prompt injection to trick LLM into promising refund or bypassing policy.",
          "Regex guardrail & FSM intercept malicious syntax -> Blocked by Policy Engine -> Emits POLICY_BLOCKED event -> Dispatches officer callback."),
         ("Scenario: 'fallback' (Zero-Downtime)", C_NAVY_HEADING,
-         "Local Ollama SLM offline or response latency exceeds timeout threshold.",
-         "Engine automatically switches to deterministic fallback templates -> Zero service disruption -> Emits LLM_FALLBACK_USED audit event.")
+         "Claude API unreachable, slow, or no API key configured.",
+         "8 s budget per call, no retries -> Engine switches to deterministic templates -> Zero service disruption -> Emits LLM_FALLBACK_USED audit event.")
     ]
 
     for idx, (s_title, s_col, s_story, s_res) in enumerate(scenarios):

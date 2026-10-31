@@ -37,7 +37,7 @@ done     {"variant":"done","messages":["Thank you. A member of our fraud team wi
 - `POST /victim/ncrp-ack` `{case_id, ack_number}` -> `{ok:true}`; 422 if the number has odd characters.
 - `GET /audit/{case_id}/verify` -> `{ok, length, broken_at}` (`broken_at` = DB seq of first bad row).
 - `POST /sim/scenario/{name}?auto_reply=true&delay=4` -> `{case_id, scenario, auto_reply}`. Names: ato genuine inbound noresponse injection. `POST /sim/reset` -> `{ok:true}` (cancels tasks, reseeds; SSE clients stay connected, refetch `/cases`).
-- `GET /health` -> `{ok, llm:"up"|"fallback"}`. `GET /metrics/summary` -> `MetricsSummary`.
+- `GET /health` -> `{ok, llm:"up"|"fallback"}` (`up` = Claude API key set and reachable; `fallback` = templates). `GET /metrics/summary` -> `MetricsSummary`.
 
 ## Paths to expect (states)
 ato + NOT_ME: NEW, TRIAGED, HELD_PENDING_VERIFY, CONFIRMED_FRAUD, CONTAINED, EVIDENCE_READY, AWAITING_OFFICER (3 decisions: raise_dispute, extend_hold, share_evidence_with_bank), CLOSED.

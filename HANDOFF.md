@@ -90,7 +90,7 @@ Never cut: tier enforcement, fallback templates, the `ato` + `genuine` + `inject
 
 ## 7. Definition of done (whole project)
 
-SPEC §12 demo acceptance passes twice in a row, once with Ollama stopped. `make test` green.
+SPEC §12 demo acceptance passes twice in a row, once with no ANTHROPIC_API_KEY (templates only). `make test` green.
 `REVIEW.md` has no open "must-fix" items.
 
 ---
@@ -175,3 +175,19 @@ SPEC §12 demo acceptance passes twice in a row, once with Ollama stopped. `make
 - Cosmetic: console shows "usr_m***" for the genuine case instead of a masked name.
 - Remaining human work (H5): install Ollama + `ollama pull qwen3:4b`, `make bench`, rerun §12 incl.
   step 8; native-speaker check of hi/te strings; record backup video; slides from PITCH.md.
+
+### 2026-10-31 — Ollama replaced by the Anthropic Claude API — DONE
+- User decision: remove Ollama; use the Claude API instead (templates stay as fallback).
+- Code: app/brain/llm.py is now `ClaudeClient` (anthropic SDK 2.3, `claude-opus-5-5`, effort low,
+  structured JSON output, 8 s timeout, no retries; no key / timeout / refusal / bad JSON → None →
+  template + LLM_FALLBACK_USED). config/settings.yaml `llm:` block rewritten; requirements += anthropic.
+  Victim reply text has digit runs redacted before it is sent to the API (app/brain/api.py).
+  Guard, fallback logging, /health `llm: up|fallback` unchanged. New tests/test_brain_claude_client.py.
+- Docs/UI/decks: Ollama/SLM/"no data leaves the machine" claims replaced (masked facts + redacted
+  reply text go to Anthropic; production needs a DPA). Console pill "Claude up" / "templates".
+- Checks: `make test` 282 passed; without a key `make demo` PASSED (ato T_protect 4.9 s), `make bench`
+  100% fallback, /health llm=fallback. Live Claude path NOT exercised (no ANTHROPIC_API_KEY here).
+- Not committed (user's in-progress work): Golden_Hour_Guardian_Pitch_Deck.pptx changes,
+  scripts/build_bespoke_deck.py. Untracked .agents/skills/pptx/node_modules + LibreOffice lock file.
+- Next: `export ANTHROPIC_API_KEY=…`, restart `make demo-run`, `make bench` (check p95 < 5 s for the
+  victim prompt), rerun SPEC §12 incl. step 8 (unset the key).

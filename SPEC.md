@@ -114,13 +114,15 @@ Mock partner calls are in-process (`mocks/partners.py`) and recorded in `partner
 
 ## 8. LLM layer (`app/brain/`, owned by brain)
 
-- Ollama `qwen3:4b` (config: `config/settings.yaml`), JSON output, `think: false`, timeout 8 s.
+- Anthropic Claude API via the official `anthropic` Python SDK, model `claude-opus-5-5` at effort `low` (config: `config/settings.yaml` `llm.model` / `llm.effort`; `llm.model: none` forces templates). Needs `ANTHROPIC_API_KEY` and internet access. JSON output, 8 s budget per call (`llm.timeout_s`), no retries.
+- No key / no network / timeout / refusal / bad JSON / guard failure → deterministic en/hi/te template + `LLM_FALLBACK_USED`.
 - Uses: `explain_risk`, `verification_messages`, `classify_reply`, `evidence_narratives`, `decision_rationale` (signatures in `BrainAPI`).
-- **Facts come from code.** Prompts receive a small, masked fact sheet (masked name/number, amounts as text, signal codes). Outputs use placeholders like `{amount}` that code fills.
+- **Facts come from code.** Prompts receive a small, masked fact sheet (signal codes/phrases, masked name like `R*** K***`; no raw names, mobile numbers, VPAs, amounts or IDs). Outputs use placeholders like `{amount}` that code fills.
+- **Privacy:** this data is sent to Anthropic's API — the masked fact sheet and, for `classify_reply`, the victim's reply with digit runs redacted. Production needs a DPA / data-residency review with the partner.
 - **Guard** (`app/brain/guard.py`): schema check + banned patterns from `config/policy.yaml`. Fail → deterministic template + `LLM_FALLBACK_USED` event.
 - **Prompt injection:** victim text is wrapped as data (`<victim_text>…</victim_text>`), output is only an enum + confidence for `classify_reply`. The LLM has no tool access.
 - **Fallback-first:** the whole demo must work with `llm.model: none` (templates only).
-- **Bench:** `scripts/bench_llm.py` prints p50/p95 latency per function — show it on a slide.
+- **Bench:** `scripts/bench_llm.py` prints Claude API p50/p95 latency and fallback rate per function — show it on a slide.
 
 ## 9. Data (owned by mockworld)
 
@@ -148,7 +150,7 @@ with fan-in spikes. All names/numbers obviously fake. Scenarios:
 | CFCFRMS/1930 freezes are police-initiated | We never freeze; we guide the victim to 1930/NCRP with a prefilled summary; victim files |
 | RBI customer liability (report fast) | Fast reporting supported; liability/refund decisions are Tier-2 human only |
 | RBI FREE-AI: human oversight, auditability | Tier table in code, officer approvals, hash-chained audit log, AI fallback logged |
-| DPDP Act: purpose limitation, minimisation | Masked data in prompts, local SLM (no data leaves the machine), retention note |
+| DPDP Act: purpose limitation, minimisation | Masked fact sheet + digit-redacted replies are the only data sent to the Claude API (no raw names, numbers, VPAs, amounts, IDs); production needs a DPA / data-residency review; retention note |
 | Impersonation scams | Never asks OTP/PIN; in-app verified channel; guard blocks risky phrases |
 
 ## 12. Demo acceptance (end-to-end check)
@@ -160,4 +162,4 @@ with fan-in spikes. All names/numbers obviously fake. Scenarios:
 5. Launch `genuine` → "Yes, it was me" → released; friction time shown.
 6. Launch `injection` → nothing auto-done; officer callback appears.
 7. Metrics header shows our medians vs the simulated baseline.
-8. Stop Ollama → repeat step 2 → still works on templates (`LLM_FALLBACK_USED` visible).
+8. Unset `ANTHROPIC_API_KEY` (or set `llm.model: none`) → repeat step 2 → still works on templates (`LLM_FALLBACK_USED` visible).

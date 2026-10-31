@@ -31,7 +31,7 @@ Run `make seed && make test-fast`. Fix integration failures in the smallest poss
 propose it to me first). Then start the server in the background, run each scenario
 (`make sim s=ato`, genuine, inbound, noresponse, injection), and check each case reaches the
 state in SPEC §9. For ato also simulate the victim reply with
-curl -X POST localhost:8000/victim/respond -H 'content-type: application/json' -d '{"case_id":"<id>","answer":"NOT_ME"}'
+curl -X POST localhost:8000/victim/respond -H 'content-type: application/json' -H 'X-Guardian-Device: dev_ravi_phone' -d '{"case_id":"<id>","answer":"NOT_ME"}'
 Show me a 5-line table: scenario, final state, T_protect. Commit "phase 1: engine",
 append to the progress log, then stop.
 ```
@@ -88,6 +88,7 @@ tell me the measured T_protect and T_ready vs baseline. Append the final progres
 
 ### P4 — final acceptance
 ```
-Run the SPEC §12 demo acceptance checklist step by step, including step 8 with Ollama stopped
-(`systemctl stop ollama` or kill the process; restart it afterwards). Report pass/fail per step.
+Run the SPEC §12 demo acceptance checklist step by step, including step 8 with the Claude API
+disabled (restart the server with `ANTHROPIC_API_KEY` unset, or set `llm.model: none`; restore it
+afterwards). Report pass/fail per step.
 ```

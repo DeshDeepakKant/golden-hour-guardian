@@ -49,7 +49,7 @@ a complete, correct victim report — and protects the victim's own account mean
 | CFCFRMS / NCRP process | Freezes come through the police-led system. → We guide the victim; we never file or freeze. |
 | RBI FREE-AI framework (Aug 2025) | Human oversight for autonomous/high-risk AI, auditability, AI incident reporting. → Tier table in code, officer approvals, hash-chained audit, logged fallbacks. |
 | RBI authentication directions (in force 1 Apr 2026) | Stronger per-transaction authentication. → Never ask for or handle OTP/PIN. |
-| DPDP Act 2023 | Purpose limitation, data minimisation, consent. → Masked data, local SLM, synthetic data in the demo. |
+| DPDP Act 2023 | Purpose limitation, data minimisation, consent. → Only a masked fact sheet and digit-redacted replies go to the Claude API (no raw names, numbers, VPAs, amounts or IDs); production needs a DPA / data-residency review; synthetic data in the demo. |
 
 ## 4. Who would actually use it?
 
@@ -87,7 +87,7 @@ a complete, correct victim report — and protects the victim's own account mean
 | Real | Mocked |
 |---|---|
 | State machine, policy tiers, audit chain, metrics | Bank/PSP hold, session revoke, dispute APIs |
-| Local SLM (Ollama) wording + classification, fallbacks | Fraud model (alerts come from the scenario injector) |
+| Claude API wording + classification (masked facts), template fallbacks | Fraud model (alerts come from the scenario injector) |
 | Android phone UI, TTS/STT, adb | Calls/SMS (in-app prompt instead) |
 | Evidence pack + NCRP field mapping | Filing on NCRP (victim does it; we record the ack number) |
 

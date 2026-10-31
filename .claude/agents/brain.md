@@ -1,6 +1,6 @@
 ---
 name: brain
-description: "Builds the SLM language layer with guardrails and multilingual templates (app/brain/**). Use for Phase 1 LLM work."
+description: "Builds the Claude API language layer with guardrails and multilingual templates (app/brain/**). Use for Phase 1 LLM work."
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: sonnet
 color: purple

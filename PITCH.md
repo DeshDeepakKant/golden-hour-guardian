@@ -65,7 +65,7 @@ Full timed script with element IDs: `DEMO.md`. Backup: `demo.mp4` and screenshot
 | CFCFRMS / 1930 freezes are police-initiated | We never freeze; we guide the victim to 1930/NCRP with a prefilled summary |
 | RBI customer liability (report fast) | Fast reporting supported; liability and refund decisions are Tier-2, human only |
 | RBI FREE-AI: human oversight, auditability | Tier table in code, officer approvals, hash-chained audit log, logged AI fallbacks |
-| DPDP Act: purpose limitation, minimisation | Masked data in prompts, local model (no data leaves the machine), digits redacted before audit |
+| DPDP Act: purpose limitation, minimisation | Only a masked fact sheet (and, for reply classification, the victim's reply with digits redacted) goes to the Claude API; no raw names, numbers, VPAs, amounts or IDs; digits redacted before audit; production needs a DPA / data-residency review |
 | Impersonation scams | Never asks for OTP or PIN; in-app verified channel; output guard blocks risky phrases |
 
 **What we don't do:** freeze a third-party account; file a complaint for the victim; ask for OTP, PIN or password; promise a refund or a timeline; contact the payee; decide liability.
@@ -95,7 +95,8 @@ The baseline is a sum of assumed steps in `config/baseline.yaml` (queue wait 900
 - False positives hit genuine users. We measure friction and release on a trusted-device "yes".
 - Voice calls can be spoofed, so verification is in-app on the trusted device; we never ask for secrets.
 - The automatic hold before confirmation is a policy a real partner must approve.
-- The local model's latency is **not measured**: Ollama was not installed on the dev machine, so `scripts/bench_llm.py` has not been run. The demo runs on templates.
+- Claude API latency is **not measured** yet: run `make bench` (`scripts/bench_llm.py`) with `ANTHROPIC_API_KEY` set before quoting it. The numbers above are template wording. Wording needs internet; without it the demo runs on templates.
+- Masked facts and redacted replies leave the machine to Anthropic's API. A real deployment needs a DPA / data-residency review with the partner.
 - Telugu and Hindi wording still needs native-speaker review.
 
 ---
@@ -126,4 +127,7 @@ Source: REVIEW.md (Judge Q&A). Answers 2 and 3 are updated to the fix status (M2
    Yes. A full rewrite with recomputed hashes would pass, so today it only detects partial or accidental tampering. In production, chain heads would be anchored periodically to WORM storage or the bank's SIEM.
 
 8. **"Does this really work in Hindi and Telugu?"**
-   Templates and reply rules exist for en, hi and te, and the fallback path works without the model. Native-speaker review is still a TODO (`app/texts.py:2`), and the 4B model's Telugu quality has not been measured because it has never run live.
+   Templates and reply rules exist for en, hi and te, and the fallback path works without the model. Native-speaker review is still a TODO (`app/texts.py:2`), and Claude's Hindi/Telugu wording has not been reviewed by a native speaker either.
+
+9. **"Does customer data go to an external AI?"**
+   Yes, a minimised slice. Wording and reply classification call the Claude API. It gets a masked fact sheet (signal codes, a masked name like "R*** K***") and, for classification, the victim's reply with digit runs redacted. Names, mobile numbers, VPAs, amounts and IDs never go in; code fills them into placeholders. With no key or no network, everything runs on templates. Production would need a DPA and data-residency review with the partner.

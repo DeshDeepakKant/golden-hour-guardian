@@ -15,4 +15,4 @@
 **Pitfalls:**
 - `StaticFiles(html=True)` mounts must be added *after* API routes or they shadow them.
 - Tests must never use `data/guardian.db`; always the tmp DB from `GUARDIAN_DB`.
-- Keep the stubs import-light: no Ollama/httpx calls in stubs.
+- Keep the stubs import-light: no Claude API/network calls in stubs.

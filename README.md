@@ -25,7 +25,7 @@ Hackathon (Track 3: Autonomous AI Teammates), on top of the idea of Paytm Pi's f
 ```bash
 unzip golden-hour-guardian-kit.zip && cd golden-hour-guardian
 bash scripts/preflight.sh          # fix anything red
-# recommended: ollama pull qwen3:4b
+export ANTHROPIC_API_KEY=...       # optional: Claude wording; without it the demo runs on templates
 claude                              # then: /model sonnet
 ```
 Then paste **P0** from `PROMPTS.md` and follow the prompts in order.

@@ -9,9 +9,10 @@
 
 **Must not:** import from `app/` except `app.contracts` and `app.config`; call tools/partners; store victim text anywhere.
 
-**Exit report (≤120 words):** files, test result, model used, measured latency if Ollama was available, template lines that need a native-speaker check.
+**Exit report (≤120 words):** files, test result, model used, measured Claude API latency if a key was available, template lines that need a native-speaker check.
 
 **Pitfalls:**
-- qwen3 may emit reasoning text if thinking isn't disabled — strip anything outside the JSON object before parsing.
-- JSON-schema `format` needs a recent Ollama; fall back to `format: "json"` if rejected.
+- Strip anything outside the JSON object before parsing; treat a refusal, an empty reply or bad JSON as a fallback.
+- Structured outputs need closed object schemas (`additionalProperties: false`); keep numeric bounds out of the schema and clamp in code.
+- The API needs internet and `ANTHROPIC_API_KEY`; the 8 s budget is per call with no retries, so a slow network means templates, not a stall.
 - TTS reads digits oddly in hi/te: code should format amounts as `₹24,999` and the app will speak them; don't spell numbers in words.
