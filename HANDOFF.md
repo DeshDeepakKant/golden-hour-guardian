@@ -154,3 +154,10 @@ SPEC §12 demo acceptance passes twice in a row, once with Ollama stopped. `make
   GUARDIAN_HOLD_EXTEND_S. Use `make demo-run` on stage.
 - Open: Ollama not installed → M4 bench + §12 step 8 can't be meaningfully run here.
 - Next step: PROMPTS.md → P3c.
+
+### 2026-10-31 — Session 1, Phase 3c demo kit — DONE
+- Done: scripts/demo.sh, DEMO.md, PITCH.md (demo-director). `make demo` → DEMO CHECK PASSED:
+  ato CLOSED T_protect 5.1 s / T_ready 5.2 s (baseline 2100 s / 3900 s, simulated); genuine RELEASED
+  (friction 4.7 s); injection AWAITING_OFFICER (officer callback). All on templates (no Ollama).
+- Open: backup video (scrcpy --record demo.mp4) not recorded yet — H5. No SLM latency claimed.
+- Next step: PROMPTS.md → P4.
