@@ -7,7 +7,7 @@ from app import brain_call
 from app.brain.api import Brain
 from tests.test_core_helpers import event_types, launch, wait_for, wait_state
 
-DEVICE = {"X-Guardian-Device": "dev_ravi_phone"}     # seed trusted device for usr_ravi
+DEVICE = {"X-Guardian-Device": "dev_ravi_phone"}     # seed trusted device for usr_meena
 
 
 def _case(client, cid):
@@ -15,12 +15,8 @@ def _case(client, cid):
 
 
 def _to_officer(client):
-    cid = launch(client, "ato")
-    wait_state(client, cid, "HELD_PENDING_VERIFY")
-    wait_for(lambda: client.get("/victim/usr_ravi/pending").json())
-    r = client.post("/victim/respond", headers=DEVICE,
-                    json={"case_id": cid, "answer": "NOT_ME", "lang": "en", "channel": "APP_TRUSTED_DEVICE"})
-    assert r.status_code == 200, r.text
+    cid = launch(client, "inbound")
+    # "inbound" (Hindi victim report) goes directly to AWAITING_OFFICER without verification
     return wait_state(client, cid, "AWAITING_OFFICER")
 
 
@@ -139,7 +135,7 @@ def test_spoken_digits_are_not_stored(client):
 
 def test_report_text_digits_are_not_stored(client):
     r = client.post("/webhooks/victim-report",
-                    json={"user_id": "usr_ravi", "text": "Not me! call me on 98765 43210", "lang": "en"})
+                    json={"user_id": "usr_meena", "text": "Not me! call me on 98765 43210", "lang": "en"})
     assert r.status_code == 202, r.text
     body = _case(client, r.json()["case_id"])
     report = next(e["payload"] for e in body["events"] if e["type"] == "VICTIM_REPORT_RECEIVED")

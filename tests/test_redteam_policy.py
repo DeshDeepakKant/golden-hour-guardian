@@ -23,7 +23,7 @@ TIER2 = dict(tools.T2_TOOLS)
 SIM_SIGNAL = Signal(code=SignalCode.SIM_CHANGE_72H, weight=0.5, detail="sim changed 2h ago")
 
 
-def _case(cid, signals=None, channel=Channel.APP_TRUSTED_DEVICE, user="usr_ravi"):
+def _case(cid, signals=None, channel=Channel.APP_TRUSTED_DEVICE, user="usr_meena"):
     c = Case(case_id=cid, user_id=user, signals=signals or [], trusted_channel=channel)
     store.save_case(c)
     return c

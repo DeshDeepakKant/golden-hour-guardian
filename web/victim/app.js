@@ -8,7 +8,7 @@
   // Device id (set by scripts/android.sh). The server, not this app, decides whether it is trusted.
   const DEVICE = params.get("device") || "";
   const API = "/";   // same origin; absolute paths so it works from /victim/ and /victim
-  const BCP47 = { en: "en-IN", hi: "hi-IN", te: "te-IN" };
+  const BCP47 = { en: "en-IN", hi: "hi-IN" };
   const MIN_PROTECTED_MS = 5000;   // keep "protected" visible before the guidance replaces it
 
   // ---------- strings ----------
@@ -64,32 +64,6 @@
       releasedTitle: "सब ठीक है", doneTitle: "पूरा हुआ",
       offline: "Guardian से संपर्क नहीं हो पाया। फिर कोशिश कर रहे हैं…",
       voiceWord: "आवाज़",
-    },
-    te: {
-      proto: "PROTOTYPE — SIMULATED DATA",
-      safety: "Guardian మిమ్మల్ని మీ OTP, PIN లేదా పాస్‌వర్డ్ ఎప్పుడూ అడగదు.",
-      setupTitle: "భద్రతా అలర్ట్‌లు", unlock: "భద్రతా అలర్ట్‌లను ఆన్ చేయడానికి నొక్కండి",
-      setupHint: "దీనివల్ల అవసరమైనప్పుడు Guardian మీతో మాట్లాడగలదు, ఫోన్ వైబ్రేట్ అవుతుంది.",
-      homeTitle: "మీ ఖాతా పర్యవేక్షణలో ఉంది", langLabel: "భాష", statusLabel: "చివరి స్థితి",
-      noAlerts: "ఇప్పటివరకు అలర్ట్‌లు లేవు.",
-      checkTitle: "భద్రతా తనిఖీ", yes: "అవును, నేనే చేశాను", no: "కాదు, అది నేను కాదు", unsure: "ఖచ్చితంగా తెలియదు",
-      mic: "మాట్లాడి చెప్పండి", listening: "వింటున్నాను…", replay: "మళ్లీ వినండి",
-      micDenied: "మైక్రోఫోన్ అనుమతి లేదు. దయచేసి బటన్ నొక్కండి.", micNone: "వినిపించలేదు. మళ్లీ ప్రయత్నించండి లేదా బటన్ నొక్కండి.",
-      noVoice: "ఈ భాషకు వాయిస్ అందుబాటులో లేదు. దయచేసి రాసింది చదవండి.",
-      waiting: "ధన్యవాదాలు. పరిశీలిస్తున్నాం…",
-      protectedTitle: "మీ ఖాతా ఇప్పుడు భద్రపరచబడింది",
-      acts: {
-        outgoing_payments_paused: "మీ చెల్లింపులు ప్రస్తుతానికి నిలిపివేయబడ్డాయి.",
-        device_signed_out: "అనుమానాస్పద ఫోన్ సైన్ అవుట్ చేయబడింది.",
-        marketing_held: "ప్రచార సందేశాలు నిలిపివేయబడ్డాయి.",
-      },
-      reportTitle: "ఇప్పుడే ఫిర్యాదు చేయండి", steps: "దశలు", summary: "కాపీ చేయడానికి సారాంశం", copy: "కాపీ చేయండి", copied: "కాపీ అయింది",
-      fields: "పోర్టల్ కోసం వివరాలు", call: "1930కి కాల్ చేయండి", portal: "cybercrime.gov.in తెరవండి",
-      ackLabel: "పోర్టల్ నుండి వచ్చిన రసీదు సంఖ్య", submit: "సమర్పించండి",
-      ackBad: "దయచేసి సంఖ్యను సరిచూసి మళ్లీ ప్రయత్నించండి.",
-      releasedTitle: "అంతా సరిగ్గా ఉంది", doneTitle: "పూర్తయింది",
-      offline: "Guardian ను చేరుకోలేకపోయాం. మళ్లీ ప్రయత్నిస్తున్నాం…",
-      voiceWord: "వాయిస్",
     },
   };
 

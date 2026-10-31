@@ -5,7 +5,7 @@ from app.contracts import Case, CaseState as S, EventType
 
 
 def _case(state=S.NEW, origin="alert", cid="case_f1"):
-    c = Case(case_id=cid, user_id="usr_ravi", state=state, origin=origin)
+    c = Case(case_id=cid, user_id="usr_meena", state=state, origin=origin)
     store.save_case(c)
     return c
 

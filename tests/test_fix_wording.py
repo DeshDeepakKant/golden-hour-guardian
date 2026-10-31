@@ -39,7 +39,7 @@ def test_s1_legit_text_still_passes(text, lang):
     assert guard.check(text, lang) == (True, ""), text
 
 
-@pytest.mark.parametrize("lang", ["en", "hi", "te"])
+@pytest.mark.parametrize("lang", ["en", "hi"])
 def test_s4_close_messages_explain_genuine_caller(lang):
     for table in (texts.CALLBACK, texts.DONE):
         msg = table[lang]
@@ -64,6 +64,6 @@ def test_s6_only_trusted_device_uses_default_city():
     pack = sample_pack().model_copy(update={"device_timeline": [
         {"device_id": "d_home", "geo_city": "Hyderabad", "trusted": True, "first_seen": "2026-01-01T00:00:00+00:00"}]})
     assert F.pack_facts(pack).values["city"] == ""
-    for lang in ("en", "hi", "te"):
+    for lang in ("en", "hi"):
         victim, _ = brain.evidence_narratives(pack, lang)
         assert "Hyderabad" not in victim and T.DEFAULT_CITY[lang] in victim

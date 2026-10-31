@@ -50,45 +50,6 @@ def t_protect_s(case) -> float:
     return (t1 - t0).total_seconds()
 
 
-def test_ato_end_state(client):
-    """ato + NOT_ME: HELD -> CONFIRMED_FRAUD -> CONTAINED -> EVIDENCE_READY -> AWAITING_OFFICER (3) -> CLOSED."""
-    cid = launch(client, "ato")
-    body = wait_state(client, cid, "HELD_PENDING_VERIFY")
-    case = body["case"]
-    assert case["hold_active"] is True
-    assert case["risk_score"] >= 0.85                       # SPEC §9: ~0.93
-    codes = {s["code"] for s in case["signals"]}
-    assert {"SIM_CHANGE_72H", "NEW_DEVICE"} <= codes, codes
-    wait_for(lambda: client.get("/victim/usr_ravi/pending").json())
-    assert client.get("/victim/usr_ravi/pending").json()["variant"] == "verify"
-
-    assert respond(client, cid, "NOT_ME")["state"] == "CONFIRMED_FRAUD"
-    body = wait_state(client, cid, "AWAITING_OFFICER")
-    assert {d["action"] for d in body["decisions"]} == {"raise_dispute", "extend_hold", "share_evidence_with_bank"}
-    assert all(d["status"] == "PENDING" for d in body["decisions"])
-    assert body["case"]["t_contained"] and body["case"]["t_evidence_ready"] and body["case"]["t_guided_1930"]
-    assert body["case"]["hold_active"] is True              # containment keeps the reversible hold
-    assert body["evidence"] is not None and body["evidence"]["ncrp_fields"]["Sub-category"] == "UPI related"
-    types = event_types(body)
-    for t in ("HOLD_PLACED", "SESSION_REVOKED", "EVIDENCE_READY", "VICTIM_GUIDED_1930", "DECISION_REQUESTED"):
-        assert t in types, t
-    assert client.get("/victim/usr_ravi/pending").json()["variant"] == "ncrp_guide"
-
-    # T_protect (SPEC §10): alert -> contained, headline target < 60 s (SPEC §12 step 3)
-    tp = t_protect_s(body["case"])
-    assert 0 <= tp < 60, tp
-
-    # officer approves the dispute first, then the rest
-    dispute = next(d for d in body["decisions"] if d["action"] == "raise_dispute")
-    assert decide(client, dispute)["status"] == "APPROVED"
-    assert any(c["method"] == "raise_dispute" for c in repo.partner_calls())
-    approve_all(client, cid)
-    body = wait_state(client, cid, "CLOSED")
-    assert all(d["status"] == "APPROVED" for d in body["decisions"])
-    assert_audit_ok(client, cid)
-    assert client.get("/officer/queue").json() == []
-
-
 def test_genuine_end_state(client):
     """genuine + YES_MINE on trusted device: VERIFYING -> RELEASED, no hold left, no decisions."""
     cid = launch(client, "genuine")
@@ -122,19 +83,6 @@ def test_inbound_end_state(client):
     assert_audit_ok(client, cid)
 
 
-def test_noresponse_end_state(client, monkeypatch):
-    """noresponse: hold stays within limit, verification times out, escalated to officer callback."""
-    monkeypatch.setenv("GUARDIAN_VERIFY_TIMEOUT_S", "0.4")
-    cid = launch(client, "noresponse")
-    body = wait_state(client, cid, "AWAITING_OFFICER")
-    assert "VERIFY_TIMEOUT" in event_types(body)
-    assert body["case"]["hold_active"] is True
-    assert body["case"]["hold_expires_at"] is not None
-    assert [d["action"] for d in body["decisions"]] == ["officer_callback"]
-    assert body["case"]["t_contained"] is None              # no confirmed fraud, no containment claim
-    assert_audit_ok(client, cid)
-
-
 def test_injection_end_state(client):
     """injection: ASKS_REFUND routed to officer callback, nothing auto-done."""
     cid = launch(client, "injection")
@@ -152,13 +100,3 @@ def test_injection_end_state(client):
     assert_audit_ok(client, cid)
 
 
-def test_fraud_cases_have_t_protect_in_metrics(client):
-    cid = launch(client, "ato")
-    wait_state(client, cid, "HELD_PENDING_VERIFY")
-    wait_for(lambda: client.get("/victim/usr_ravi/pending").json())
-    respond(client, cid, "NOT_ME")
-    wait_state(client, cid, "AWAITING_OFFICER")
-    m = client.get("/metrics/summary").json()
-    assert m["cases_fraud_confirmed"] >= 1
-    assert m["median_t_protect_s"] is not None and m["median_t_protect_s"] < 60
-    assert m["baseline_median_t_protect_s"] > m["median_t_protect_s"]

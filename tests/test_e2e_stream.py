@@ -49,7 +49,7 @@ def test_events_stream_yields_case_message_after_scenario(live_server):
             assert resp.headers["content-type"].startswith("text/event-stream")
             for line in resp.iter_lines():
                 if line.startswith(": connected") and launched is None:
-                    r = client.post("/sim/scenario/ato")
+                    r = client.post("/sim/scenario/genuine")
                     assert r.status_code == 200, r.text
                     launched = r.json()["case_id"]
                 elif line.startswith("data:") and launched is not None:
@@ -60,5 +60,5 @@ def test_events_stream_yields_case_message_after_scenario(live_server):
                         break
     assert launched is not None, "never saw the connected comment"
     assert case_msg is not None, f"no case message for {launched}; kinds seen: {sorted(kinds_seen)}"
-    assert case_msg["data"]["user_id"] == "usr_ravi"
+    assert case_msg["data"]["user_id"] == "usr_meena"
     assert "case" in kinds_seen

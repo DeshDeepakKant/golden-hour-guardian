@@ -21,16 +21,13 @@ HISTORY_DAYS = 30
 BG_COUNT = 60
 MODEL_TRUSTED = "Synthetic Phone A1"
 
-# (user_id, first name, city, lang). The five scenario users have fixed IDs.
+# (user_id, first name, city, lang). The scenario users have fixed IDs (Telugu removed).
 NAMED_USERS: list[tuple[str, str, str, str]] = [
-    ("usr_ravi", "Ravi", "Hyderabad", "te"),        # ato
     ("usr_meena", "Meena", "Hyderabad", "en"),      # genuine
     ("usr_arjun", "Arjun", "Bengaluru", "hi"),      # inbound
-    ("usr_lakshmi", "Lakshmi", "Warangal", "te"),   # noresponse
     ("usr_kiran", "Kiran", "Vijayawada", "en"),     # injection
     ("usr_asha", "Asha", "Warangal", "en"),
     ("usr_nikhil", "Nikhil", "Vijayawada", "hi"),
-    ("usr_priya", "Priya", "Bengaluru", "te"),
 ]
 CITIES = ["Hyderabad", "Warangal", "Vijayawada", "Bengaluru"]
 

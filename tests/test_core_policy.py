@@ -17,7 +17,7 @@ TIER3_TOOLS = {
 
 
 def _case(case_id="case_t1", signals=None, **kw) -> Case:
-    c = Case(case_id=case_id, user_id="usr_ravi", signals=signals or [], **kw)
+    c = Case(case_id=case_id, user_id="usr_meena", signals=signals or [], **kw)
     store.save_case(c)
     return c
 

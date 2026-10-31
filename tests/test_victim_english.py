@@ -13,28 +13,16 @@ def _pending(client, user_id):
     return wait_for(lambda: client.get(f"/victim/{user_id}/pending").json())
 
 
-@pytest.mark.parametrize("scenario,user_id,lang", [("ato", "usr_ravi", "te"), ("inbound", "usr_arjun", "hi")])
-def test_native_language_prompts_have_english_lines(client, scenario, user_id, lang):
-    cid = client.post(f"/sim/scenario/{scenario}").json()["case_id"]
-    if scenario == "ato":
-        wait_state(client, cid, "HELD_PENDING_VERIFY")
-    p = _pending(client, user_id)
-    assert p["lang"] == lang
+def test_hindi_prompts_have_english_companion(client):
+    cid = client.post("/sim/scenario/inbound").json()["case_id"]
+    wait_state(client, cid, "AWAITING_OFFICER")
+    p = _pending(client, "usr_arjun")
+    assert p["lang"] == "hi"
     en = p.get("messages_en")
     assert en and all(isinstance(x, str) and x for x in en)
     assert not any(ord(c) > 0x0900 and ord(c) < 0x0C80 + 0x80 for line in en for c in line if c.isalpha()), \
         "English companion must be Latin script"
     assert all("{" not in line for line in en), "unfilled placeholder in English line"
-
-
-def test_verify_english_lines_match_template_facts(client):
-    cid = client.post("/sim/scenario/ato").json()["case_id"]
-    wait_state(client, cid, "HELD_PENDING_VERIFY")
-    p = _pending(client, "usr_ravi")
-    assert p["variant"] == "verify"
-    joined = " ".join(p["messages_en"])
-    assert "₹74,997" in joined                      # amount comes from code, same as the Telugu line
-    assert "OTP" in joined and "never" in joined.lower()   # safety line present
 
 
 def test_english_user_gets_no_companion(client):

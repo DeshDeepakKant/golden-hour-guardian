@@ -58,7 +58,8 @@ def test_wrong_header_is_untrusted(client):
 
 def test_other_users_device_is_untrusted(client):
     cid, _ = _genuine(client)
-    other = repo.user_profile("usr_ravi")["trusted_device"]
+    # Use a different user's device (usr_arjun instead of usr_meena who is the case owner)
+    other = repo.user_profile("usr_arjun")["trusted_device"]
     assert _post(client, cid, other, answer="YES_MINE")["state"] == "AWAITING_OFFICER"
 
 

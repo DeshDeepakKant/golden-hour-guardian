@@ -81,44 +81,6 @@ def _device_takeover(conn: sqlite3.Connection, now: datetime, rng: random.Random
     return txn_ids
 
 
-def _ato(conn: sqlite3.Connection, now: datetime, rng: random.Random) -> dict[str, Any]:
-    user_id = "usr_ravi"
-    txn_ids = _device_takeover(conn, now, rng, user_id, "dev_x9", MULE_VPAS[0:2], sim_change=True)
-    conn.commit()
-    partners.queue_push(user_id, MARKETING_PAYLOAD, now + timedelta(seconds=MARKETING_DELAY_S))
-    alert = FraudAlert(
-        alert_id=_id("alr"), user_id=user_id, source="model", score=0.93,
-        signals=[
-            _signal(SignalCode.NEW_DEVICE, 0.8, "New device dev_x9 first seen 6 min ago in Jaipur"),
-            _signal(SignalCode.SIM_CHANGE_72H, 0.8, "SIM changed 2 h ago"),
-            _signal(SignalCode.FIRST_TIME_PAYEE, 0.7, "3 transfers to first-time payees"),
-            _signal(SignalCode.PAYEE_FANIN_SPIKE, 0.7, "Payees received from 40+ new senders in 60 min"),
-            _signal(SignalCode.VELOCITY_SPIKE, 0.6, "3 transfers within 4 min"),
-            _signal(SignalCode.GEO_JUMP, 0.6, "Hyderabad to Jaipur within 6 min"),
-        ],
-        txn_ids=txn_ids, created_at=now,
-    )
-    reply = {"answer": ReplyIntent.NOT_ME.value, "transcript": None, "lang": "te",
-             "channel": Channel.APP_TRUSTED_DEVICE.value}
-    return {"alert": alert, "report": None, "scripted_reply": reply}
-
-
-def _noresponse(conn: sqlite3.Connection, now: datetime, rng: random.Random) -> dict[str, Any]:
-    user_id = "usr_lakshmi"
-    txn_ids = _device_takeover(conn, now, rng, user_id, "dev_x9_lk", MULE_VPAS[2:4], sim_change=False)
-    conn.commit()
-    alert = FraudAlert(
-        alert_id=_id("alr"), user_id=user_id, source="model", score=0.90,
-        signals=[
-            _signal(SignalCode.NEW_DEVICE, 0.8, "New device dev_x9_lk first seen 6 min ago in Jaipur"),
-            _signal(SignalCode.FIRST_TIME_PAYEE, 0.7, "3 transfers to first-time payees"),
-            _signal(SignalCode.PAYEE_FANIN_SPIKE, 0.7, "Payees received from 40+ new senders in 60 min"),
-            _signal(SignalCode.VELOCITY_SPIKE, 0.6, "3 transfers within 4 min"),
-            _signal(SignalCode.GEO_JUMP, 0.6, "Warangal to Jaipur within 6 min"),
-        ],
-        txn_ids=txn_ids, created_at=now,
-    )
-    return {"alert": alert, "report": None, "scripted_reply": None}
 
 
 def _genuine(conn: sqlite3.Connection, now: datetime, rng: random.Random) -> dict[str, Any]:
@@ -175,10 +137,8 @@ def _injection(conn: sqlite3.Connection, now: datetime, rng: random.Random) -> d
 
 
 SCENARIOS = {
-    "ato": _ato,
     "genuine": _genuine,
     "inbound": _inbound,
-    "noresponse": _noresponse,
     "injection": _injection,
 }
 
