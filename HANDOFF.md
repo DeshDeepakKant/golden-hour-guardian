@@ -161,3 +161,17 @@ SPEC §12 demo acceptance passes twice in a row, once with Ollama stopped. `make
   (friction 4.7 s); injection AWAITING_OFFICER (officer callback). All on templates (no Ollama).
 - Open: backup video (scrcpy --record demo.mp4) not recorded yet — H5. No SLM latency claimed.
 - Next step: PROMPTS.md → P4.
+
+### 2026-10-31 — Session 1, Phase 4 acceptance (SPEC §12) — PASS 7/7, step 8 N/A
+- Server: `make seed && make demo-run`; phone moto g64 5G via `make android`.
+- 1 PASS · 2 PASS (Telugu verify prompt on phone at +3.4 s; vibration/TTS not observable by screenshot)
+  · 3 PASS (T_protect 13.4 s incl. human tap delay; evidence pack; 1930 guidance + copyable summary)
+  · 4 PASS (raise_dispute APPROVED, partner call DSP-132C0630, audit ok) · 5 PASS (usr_meena YES on
+  trusted phone → RELEASED, friction 12.5 s) · 6 PASS (ASKS_REFUND → officer_callback, nothing auto)
+  · 7 PASS (console header vs simulated baseline, headless screenshot) · 8 N/A (Ollama not installed;
+  system already runs on templates, LLM_FALLBACK_USED logged, "templates" pill shown).
+- Bug found + fixed: scripts/android.sh passed the URL unquoted to `adb shell`, so the remote shell cut
+  it at `&` → phone lost `device=` → replies untrusted. Now quoted for the remote shell.
+- Cosmetic: console shows "usr_m***" for the genuine case instead of a masked name.
+- Remaining human work (H5): install Ollama + `ollama pull qwen3:4b`, `make bench`, rerun §12 incl.
+  step 8; native-speaker check of hi/te strings; record backup video; slides from PITCH.md.

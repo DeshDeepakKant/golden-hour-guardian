@@ -24,8 +24,8 @@ adb reverse tcp:${PORT} tcp:${PORT}
 # Keep the screen on while plugged in (reset after the demo: adb shell svc power stayon false)
 adb shell svc power stayon usb || true
 # Open in Chrome; fall back to the default browser
-adb shell am start -a android.intent.action.VIEW -d "${URL}" com.android.chrome >/dev/null 2>&1 \
-  || adb shell am start -a android.intent.action.VIEW -d "${URL}" >/dev/null
+adb shell am start -a android.intent.action.VIEW -d "'${URL}'" com.android.chrome >/dev/null 2>&1 \
+  || adb shell am start -a android.intent.action.VIEW -d "'${URL}'" >/dev/null
 
 echo "Opened ${URL} on $(adb shell getprop ro.product.model | tr -d '\r')."
 echo "On the phone: tap 'Enable security alerts' once (unlocks voice + vibration)."
