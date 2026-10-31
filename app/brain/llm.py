@@ -16,6 +16,8 @@ from app.config import SETTINGS
 
 _UP_TTL_S = 60.0     # cache a successful health check
 _DOWN_TTL_S = 15.0   # retry a failed one sooner
+_UNSUPPORTED = ("minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum", "minItems", "maxItems",
+                "minLength", "maxLength", "multipleOf")
 
 
 def _cfg() -> dict[str, Any]:
@@ -40,13 +42,14 @@ def extract_json(raw: str) -> Optional[dict[str, Any]]:
 
 
 def strict_schema(schema: Any) -> Any:
-    """Make a JSON schema acceptable to structured outputs: closed objects, no numeric bounds
-    (code clamps numbers anyway)."""
+    """Make a JSON schema acceptable to structured outputs: closed objects, and none of the
+    unsupported bounds (the API 400s on minItems > 1 and on numeric min/max). Callers already
+    validate array lengths and clamp numbers in code."""
     if isinstance(schema, list):
         return [strict_schema(s) for s in schema]
     if not isinstance(schema, dict):
         return schema
-    out = {k: strict_schema(v) for k, v in schema.items() if k not in ("minimum", "maximum")}
+    out = {k: strict_schema(v) for k, v in schema.items() if k not in _UNSUPPORTED}
     if out.get("type") == "object":
         out.setdefault("additionalProperties", False)
     return out

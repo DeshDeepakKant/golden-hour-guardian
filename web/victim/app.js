@@ -4,7 +4,7 @@
   "use strict";
 
   const params = new URLSearchParams(location.search);
-  const USER = params.get("user") || "usr_ravi";
+  const USER = params.get("user") || "usr_meena";
   // Device id (set by scripts/android.sh). The server, not this app, decides whether it is trusted.
   const DEVICE = params.get("device") || "";
   const API = "/";   // same origin; absolute paths so it works from /victim/ and /victim
@@ -248,6 +248,19 @@
     present(p, false);
   }
 
+  // English companion lines (server sends messages_en only when the message is not already English).
+  function renderEnglish(after, p) {
+    document.querySelectorAll(".en-block[data-for='" + after.id + "']").forEach((n) => n.remove());
+    const en = Array.isArray(p.messages_en) ? p.messages_en : [];
+    if (!en.length || p.lang === "en") return;
+    const box = el("div", "en-block");
+    box.dataset.for = after.id;
+    box.setAttribute("lang", "en");
+    box.appendChild(el("div", "en-label", "English"));
+    en.forEach((m) => box.appendChild(el("p", null, m)));
+    after.insertAdjacentElement("afterend", box);
+  }
+
   function present(p, force) {
     const k = key(p);
     const fresh = force || !state.seen.has(k);
@@ -285,6 +298,7 @@
     });
     const L = $("verify-lines"); clear(L);
     lines.forEach((m) => L.appendChild(el("p", null, m)));
+    renderEnglish(L, p);
     const answers = p.answers && p.answers.length ? p.answers : ["YES_MINE", "NOT_ME", "UNSURE"];
     $("ans-yes").hidden = !answers.includes("YES_MINE");
     $("ans-no").hidden = !answers.includes("NOT_ME");
@@ -303,6 +317,7 @@
     const shown = lines.length ? lines
       : (p.actions_taken || []).map((a) => t().acts[a]).filter(Boolean);
     shown.forEach((m) => ul.appendChild(el("li", null, m)));
+    renderEnglish(ul, p);
     showScreen("protected");
     if (fresh) speak(shown, p.lang || "en");
   }
@@ -311,6 +326,7 @@
     stopSpeech();
     const ol = $("report-steps"); clear(ol);
     lines.forEach((m) => ol.appendChild(el("li", null, m)));
+    renderEnglish(ol, p);
     $("report-summary").value = p.summary || "";
     const dl = $("report-fields"); clear(dl);
     const f = p.ncrp_fields || {};
@@ -328,6 +344,7 @@
     setText("close-title", title);
     const L = $("close-lines"); clear(L);
     lines.forEach((m) => L.appendChild(el("p", null, m)));
+    renderEnglish(L, p);
     showScreen("close");
   }
 

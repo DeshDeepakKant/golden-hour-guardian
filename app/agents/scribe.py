@@ -6,6 +6,7 @@ import re
 
 from app import brain_call, fsm, store, texts, tools
 from app.agents import sentinel, voice
+from app.brain import templates as btpl
 from app.contracts import CaseState as S, EvidencePack, Case, utcnow
 from app.repo import repo
 from app.util import fmt_inr, fmt_ist
@@ -77,7 +78,8 @@ async def run(case_id: str) -> None:
 
     case = store.get_case(case_id)
     prompt = voice._prompt(
-        case, "ncrp_guide", list(steps), summary=pack.summary_victim_lang, ncrp_fields=pack.ncrp_fields,
+        case, "ncrp_guide", list(steps), messages_en=list(btpl.NCRP_STEPS["en"]),
+        summary=pack.summary_victim_lang, ncrp_fields=pack.ncrp_fields,
         helpline="1930", portal="https://cybercrime.gov.in", field_map_label=FORM_LABEL,
     )
     tools.guide_ncrp(case, ACTOR, prompt)

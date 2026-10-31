@@ -10,6 +10,7 @@ from typing import Any, Optional
 
 from app import audit, brain_call, fsm, orchestrator_tasks as tasks, store, texts, tools
 from app.agents import desk, sentinel
+from app.brain import facts as bfacts, templates as btpl
 from app.config import POLICY
 from app.contracts import (
     Action, Case, CaseState as S, Channel, EventType, ReplyIntent, VictimResponse, utcnow,
@@ -36,7 +37,24 @@ def _txn_view(case: Case) -> list[dict[str, Any]]:
              "ts": t.ts.isoformat()} for t in sentinel.suspect_txns(case)]
 
 
-def _prompt(case: Case, variant: str, messages: list[str], **extra: Any) -> dict[str, Any]:
+def en_lines(case: Case, lines: Optional[list[str]]) -> Optional[list[str]]:
+    """English companion lines shown under Hindi/Telugu text. Fixed templates only (no model call)."""
+    return lines if lines and case.lang != "en" else None
+
+
+def _verify_en(case: Case, txns: list) -> Optional[list[str]]:
+    if case.lang == "en":
+        return None
+    try:
+        f = bfacts.case_facts(case, txns)
+        what = (btpl.VERIFY_WHAT_NEWDEV if f.new_device else btpl.VERIFY_WHAT)["en"]
+        return [btpl.fill(what, f.values, "en"), btpl.VERIFY_QUESTION["en"], btpl.SAFETY_LINE["en"]]
+    except Exception:
+        return None
+
+
+def _prompt(case: Case, variant: str, messages: list[str],
+            messages_en: Optional[list[str]] = None, **extra: Any) -> dict[str, Any]:
     asks = variant in ("verify", "retry")
     p: dict[str, Any] = {
         "case_id": case.case_id, "user_id": case.user_id, "variant": variant, "lang": case.lang,
@@ -45,6 +63,8 @@ def _prompt(case: Case, variant: str, messages: list[str], **extra: Any) -> dict
         "deadline": (utcnow() + timedelta(seconds=timeout_s())).isoformat() if asks else None,
         "safety_line": texts.pick(texts.SAFETY, case.lang), "ts": utcnow().isoformat(),
     }
+    if en_lines(case, messages_en):
+        p["messages_en"] = messages_en
     p.update(extra)
     return p
 
@@ -57,12 +77,14 @@ async def start_verification(case_id: str) -> None:
     case = store.get_case(case_id)
     if case.state not in VERIFY_STATES:
         return
-    tools.notify_victim(case, ACTOR, _prompt(case, "verify", list(messages)))
+    tools.notify_victim(case, ACTOR, _prompt(case, "verify", list(messages),
+                                             messages_en=_verify_en(case, txns)))
     tasks.spawn(case_id, _timeout(case_id, timeout_s()), "verify_timeout")
 
 
 def send_simple(case: Case, variant: str, table: dict[str, str]) -> None:
-    tools.notify_victim(case, ACTOR, _prompt(case, variant, [texts.pick(table, case.lang)]))
+    tools.notify_victim(case, ACTOR, _prompt(case, variant, [texts.pick(table, case.lang)],
+                                             messages_en=[texts.pick(table, "en")]))
 
 
 def send_protected(case_id: str) -> None:
@@ -77,7 +99,9 @@ def send_protected(case_id: str) -> None:
         taken.append("marketing_held")
     lines = [texts.pick(texts.PROTECTED[k], case.lang) for k in taken]
     lines.append(texts.pick(texts.PROTECTED["_review"], case.lang))
-    tools.notify_victim(case, ACTOR, _prompt(case, "protected", lines, actions_taken=taken))
+    lines_en = [texts.pick(texts.PROTECTED[k], "en") for k in taken] + [texts.pick(texts.PROTECTED["_review"], "en")]
+    tools.notify_victim(case, ACTOR, _prompt(case, "protected", lines, messages_en=lines_en,
+                                             actions_taken=taken))
 
 
 async def _timeout(case_id: str, seconds: float) -> None:
@@ -181,9 +205,10 @@ def _send_retry(case: Case) -> None:
     txns = sentinel.suspect_txns(case)
     if txns:
         biggest = max(txns, key=lambda t: t.amount_paise)
-        line = texts.pick(texts.RETRY, case.lang).format(amount=fmt_inr(biggest.amount_paise),
-                                                          payee=biggest.payee_vpa)
+        vals = {"amount": fmt_inr(biggest.amount_paise), "payee": biggest.payee_vpa}
     else:
-        line = texts.pick(texts.RETRY, case.lang).format(amount="the payment", payee="the payee")
-    tools.notify_victim(case, ACTOR, _prompt(case, "retry", [line]))
+        vals = {"amount": "the payment", "payee": "the payee"}
+    line = texts.pick(texts.RETRY, case.lang).format(**vals)
+    tools.notify_victim(case, ACTOR, _prompt(case, "retry", [line],
+                                             messages_en=[texts.pick(texts.RETRY, "en").format(**vals)]))
     tasks.spawn(case.case_id, _timeout(case.case_id, timeout_s()), "verify_timeout")

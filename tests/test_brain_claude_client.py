@@ -56,6 +56,33 @@ SCHEMA = {"type": "object", "properties": {"text": {"type": "string"},
           "required": ["text", "confidence"]}
 
 
+def test_strict_schema_drops_array_bounds_the_api_rejects():
+    # Live API: "For 'array' type, 'minItems' values other than 0 or 1 are not supported" (HTTP 400)
+    s = llm_mod.strict_schema({"type": "object", "required": ["lines"], "properties": {
+        "lines": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 3}}})
+    assert "minItems" not in s["properties"]["lines"] and "maxItems" not in s["properties"]["lines"]
+
+
+def test_every_brain_schema_is_api_safe():
+    """All schemas the brain sends must survive strict_schema with no unsupported keywords left."""
+    import inspect
+    import re
+    from app.brain import api
+    src = inspect.getsource(api)
+    assert "minItems" in src                       # the brain does declare bounds ...
+    from app.brain.llm import _UNSUPPORTED         # ... and strict_schema strips every unsupported keyword
+
+    def walk(x):
+        if isinstance(x, dict):
+            assert not set(x) & set(_UNSUPPORTED), x
+            [walk(v) for v in x.values()]
+        elif isinstance(x, list):
+            [walk(v) for v in x]
+    walk(llm_mod.strict_schema(api._obj(lines={"type": "array", "items": api._STR, "minItems": 2, "maxItems": 3},
+                                        steps={"type": "array", "items": api._STR, "minItems": 4, "maxItems": 6},
+                                        confidence={"type": "number", "minimum": 0, "maximum": 1})))
+
+
 def test_strict_schema_closes_objects_and_drops_bounds():
     s = llm_mod.strict_schema(SCHEMA)
     assert s["additionalProperties"] is False

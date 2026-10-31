@@ -15,7 +15,7 @@ First line is a `: connected` comment, then a `: ping` comment every 15 s. On re
 Event actors: `system`, `agent:{sentinel,shield,voice,scribe,desk}`, `human:<officer>`, `victim`.
 
 ## victim_prompt (data of kind `victim_prompt`; also `GET /victim/{user_id}/pending` returns the latest, or `null`)
-Common keys: `case_id, user_id, variant, lang (en|hi|te), messages[str], expects_reply, answers[], txns[], deadline, safety_line, ts`.
+Common keys: `case_id, user_id, variant, lang (en|hi|te), messages[str], expects_reply, answers[], txns[], deadline, safety_line, ts`. For Hindi/Telugu prompts there is also `messages_en[str]` (fixed English templates, shown under the native text; absent when `lang` is `en`).
 ```
 verify   {"variant":"verify","messages":["...2-3 lines..."],"expects_reply":true,"answers":["YES_MINE","NOT_ME","UNSURE"],"txns":[{"txn_id":"txn_1","payee_vpa":"m1.qx@demo","amount_paise":2499900,"ts":".."}],"deadline":"..."}
 retry    {"variant":"retry","messages":["Just to be sure: did you make the payment of ₹24,999 to m1.qx@demo? Please tap Yes or No."],"expects_reply":true,"answers":[...]}

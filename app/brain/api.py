@@ -198,8 +198,8 @@ class Brain:
             f = F.case_facts(case, [])
             phrase = T.action_phrase(action)
             out = self._ask(f"Write 1 or 2 sentences telling a fraud officer why they may want to approve "
-                            f"this action: {phrase}. Cite the signals. It is a recommendation only; "
-                            "no guarantees.", f.prompt, _SCHEMA_TEXT)
+                            f"this action: {phrase}. Cite the signals. It is a recommendation only. "
+                            "Do not predict or promise any outcome.", f.prompt, _SCHEMA_TEXT)
             t = out.get("text") if out else None
             if self._good(t, "en", max_len=350):
                 self._done(False)
@@ -220,7 +220,9 @@ class Brain:
                 "open cybercrime.gov.in and choose 'Report financial fraud'; keep the summary ready (copy "
                 "button in the app); share transaction IDs, amounts and suspect UPI IDs; note the "
                 "acknowledgement number and enter it in the app; finish with 'Our fraud team is reviewing "
-                "your case.' Never say money will be returned or frozen.",
+                "your case.' Write the helpline number 1930 and the domain cybercrime.gov.in exactly like "
+                "that (the only digits and link allowed, despite the digits rule). Do not mention "
+                "money being returned, recovered or frozen.",
                 {"language": lang}, _obj(steps={"type": "array", "items": _STR, "minItems": 4, "maxItems": 6}), lang)
             steps = out.get("steps") if out else None
             if (isinstance(steps, list) and 4 <= len(steps) <= 6
