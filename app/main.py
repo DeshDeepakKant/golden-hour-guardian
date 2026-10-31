@@ -23,6 +23,14 @@ WEB = ROOT / "web"
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     init_db()
+    try:
+        from app.db import connect
+        from mocks.seed import seed
+        with connect() as conn:
+            if conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0:
+                seed(conn, reset=False)
+    except Exception:
+        pass
     pending.reset()
     tools.reset()
     bus.reset()
