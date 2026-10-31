@@ -5,6 +5,7 @@
 > *Interception, containment, and victim reporting in the critical first 60 minutes — with human-in-the-loop oversight on all financial decisions.*
 
 [![CI Test Suite](https://github.com/DeshDeepakKant/golden-hour-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/DeshDeepakKant/golden-hour-guardian/actions)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDeshDeepakKant%2Fgolden-hour-guardian)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com)
 [![Tests Passing](https://img.shields.io/badge/tests-269%20passed-success.svg)](tests/)
