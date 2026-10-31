@@ -1,0 +1,18 @@
+{
+  "name": "Guardian",
+  "short_name": "Guardian",
+  "description": "Prototype: security alerts and guided reporting (simulated data).",
+  "start_url": "./?user=usr_ravi",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f3d3e",
+  "theme_color": "#0f3d3e",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f3d3e'/%3E%3Cpath d='M32 10l18 7v14c0 11-7.5 19-18 23C21.500 50 14 42 14 31V17z' fill='%2342c6a5'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

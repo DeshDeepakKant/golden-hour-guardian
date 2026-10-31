@@ -132,3 +132,13 @@ SPEC §12 demo acceptance passes twice in a row, once with Ollama stopped. `make
   Escalations reuse state NO_RESPONSE_ESCALATED (no other escalation state in frozen contract).
   Hindi/Telugu strings in app/brain/templates.py need a native-speaker check (H5).
 - Next step: PROMPTS.md → P2.
+
+### 2026-10-31 — Session 1, Phase 2 + phone check — DONE
+- Done: officer console (web/officer/*, headless-Chrome checked light+dark), victim PWA
+  (web/victim/*, checked on a moto g64 5G with en/hi/te voices).
+- Phone check (P2.5): victim app loads via `make android`; ato verify prompt (Telugu, usr_ravi)
+  visible 3.4 s after launch; "No, not me" → protected screen; case AWAITING_OFFICER.
+- Note: running two UI agents on one server/usr_ravi cross-contaminated their manual tests —
+  for demos, `/sim/reset` first and run one scenario per user at a time.
+- Not verified: mic speech input, vibration.
+- Next step: PROMPTS.md → P3a.

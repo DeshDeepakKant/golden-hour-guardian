@@ -1,5 +1,110 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Guardian — officer</title></head>
-<body><p>PROTOTYPE — SIMULATED DATA</p></body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Guardian — fraud officer console</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="banner" class="banner" role="status" aria-live="polite" hidden>Reconnecting&hellip; live updates paused</div>
+
+<header class="topbar">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="brand-name">Guardian</span><span class="brand-sub">Fraud officer console</span>
+  </div>
+  <div class="proto" id="proto-label">PROTOTYPE — SIMULATED DATA</div>
+  <div class="top-right">
+    <span id="llm-pill" class="pill pill-amber" title="Language model status from /health">templates</span>
+    <span class="muted small">Times in IST</span>
+  </div>
+</header>
+
+<section class="metrics" id="metrics" aria-label="Metrics">
+  <div class="tile" title="Median time from alert to the customer's own access being protected">
+    <div class="tile-label">Median T_protect</div>
+    <div class="tile-value" id="m-protect">—</div>
+    <div class="tile-base"><span class="base-tip" id="m-protect-base" title="simulated manual baseline (assumptions)">—</span></div>
+  </div>
+  <div class="tile" title="Median time from alert to evidence pack ready and customer guided to 1930/NCRP">
+    <div class="tile-label">Median T_ready</div>
+    <div class="tile-value" id="m-ready">—</div>
+    <div class="tile-base"><span class="base-tip" id="m-ready-base" title="simulated manual baseline (assumptions)">—</span></div>
+  </div>
+  <div class="tile" title="Share of confirmed fraud cases protected in under 10 minutes">
+    <div class="tile-label">Protected &lt; 10 min</div>
+    <div class="tile-value" id="m-pct">—</div>
+    <div class="tile-base muted" id="m-cases">0 cases</div>
+  </div>
+  <div class="tile" title="Median time to release a payment hold for genuine customers">
+    <div class="tile-label">Genuine friction</div>
+    <div class="tile-value" id="m-friction">—</div>
+    <div class="tile-base muted">alert → released</div>
+  </div>
+  <div class="tile tile-wide" id="m-counters-tile">
+    <div class="tile-label">Who did what</div>
+    <div class="counters" id="m-counters">
+      <span class="cnt cnt-t1">AI did: <b id="m-t1">0</b> (Tier 1)</span>
+      <span class="cnt cnt-t2">You decided: <b id="m-t2">0</b> (Tier 2)</span>
+      <span class="cnt cnt-t3">Blocked: <b id="m-t3">0</b> (Tier 3)</span>
+    </div>
+  </div>
+</section>
+
+<main class="grid">
+  <section class="panel" id="queue-panel" aria-label="Case queue">
+    <h2>Cases <span class="count" id="queue-count">0</span></h2>
+    <ul id="case-list" class="case-list"></ul>
+    <p id="queue-empty" class="empty">No cases yet. Launch a scenario below.</p>
+  </section>
+
+  <section class="panel" id="detail-panel" aria-label="Case detail">
+    <div id="detail-empty" class="empty big">Select a case to see what the AI did and what needs you.</div>
+    <div id="detail" hidden>
+      <div id="d-head" class="d-head"></div>
+      <h3>Timeline <span class="muted small" id="d-tl-note"></span></h3>
+      <ol id="d-timeline" class="timeline"></ol>
+      <h3>Why this was flagged</h3>
+      <div id="d-risk" class="card"></div>
+      <h3>Evidence pack <span class="muted small">(masked)</span></h3>
+      <div id="d-evidence" class="card"></div>
+      <h3>Money trail</h3>
+      <div id="d-trail" class="card"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="decision-panel" aria-label="Decisions">
+    <h2>Needs your decision <span class="count" id="pending-count">0</span></h2>
+    <div id="pending-list"></div>
+    <p id="pending-empty" class="empty">Nothing waiting for you.</p>
+    <h3>Resolved <span class="muted small">(selected case)</span></h3>
+    <div id="resolved-list"></div>
+    <p id="resolved-empty" class="empty">None yet.</p>
+    <div class="audit">
+      <button id="btn-verify-audit" class="btn" type="button" disabled>Verify audit chain</button>
+      <span id="audit-result" class="audit-result" aria-live="polite"></span>
+    </div>
+  </section>
+</main>
+
+<footer class="launcher">
+  <details id="launcher" open>
+    <summary>Scenario launcher</summary>
+    <div class="launcher-row">
+      <button class="btn" id="sc-ato" data-scenario="ato" type="button">ato</button>
+      <button class="btn" id="sc-genuine" data-scenario="genuine" type="button">genuine</button>
+      <button class="btn" id="sc-inbound" data-scenario="inbound" type="button">inbound</button>
+      <button class="btn" id="sc-noresponse" data-scenario="noresponse" type="button">noresponse</button>
+      <button class="btn" id="sc-injection" data-scenario="injection" type="button">injection</button>
+      <label class="chk"><input type="checkbox" id="sc-autoreply"> auto-reply</label>
+      <button class="btn btn-danger" id="sc-reset" type="button">Reset</button>
+      <span id="sc-status" class="muted small" aria-live="polite"></span>
+    </div>
+  </details>
+</footer>
+
+<script src="app.js"></script>
+</body>
 </html>

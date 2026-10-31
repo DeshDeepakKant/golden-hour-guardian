@@ -1,5 +1,126 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Guardian — victim</title></head>
-<body><p>PROTOTYPE — SIMULATED DATA</p></body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3d3e">
+<title>Guardian</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f3d3e'/%3E%3Cpath d='M32 10l18 7v14c0 11-7.5 19-18 23C21.500 50 14 42 14 31V17z' fill='%2342c6a5'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true"></span><span id="brand">Guardian</span></div>
+  <div class="proto" id="proto">PROTOTYPE — SIMULATED DATA</div>
+</header>
+
+<main id="main" aria-live="polite">
+
+  <!-- 1. Setup / unlock -->
+  <section class="screen" id="screen-setup" hidden>
+    <div class="hero">
+      <div class="shield" aria-hidden="true"></div>
+      <h1 id="setup-title">Security alerts</h1>
+    </div>
+    <button class="btn primary big" id="btn-unlock" type="button">Tap to enable security alerts</button>
+    <p class="hint" id="setup-hint"></p>
+  </section>
+
+  <!-- 2. Home -->
+  <section class="screen" id="screen-home" hidden>
+    <div class="hero">
+      <div class="shield ok" aria-hidden="true"></div>
+      <h1 id="home-title">Your account is monitored</h1>
+    </div>
+    <div class="card">
+      <div class="label" id="home-lang-label">Language</div>
+      <div class="seg" id="lang-picker" role="group">
+        <button type="button" data-lang="en">English</button>
+        <button type="button" data-lang="hi">हिन्दी</button>
+        <button type="button" data-lang="te">తెలుగు</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label" id="home-status-label">Last status</div>
+      <div id="home-status" class="status-text"></div>
+      <div id="home-status-time" class="small muted"></div>
+    </div>
+    <div class="small muted center" id="voice-status"></div>
+  </section>
+
+  <!-- 3. Security check (verify / retry) -->
+  <section class="screen" id="screen-verify" hidden>
+    <div class="alert-head">
+      <div class="pulse" aria-hidden="true"></div>
+      <h1 id="verify-title">Security check</h1>
+    </div>
+    <div class="card txn" id="verify-txns"></div>
+    <div id="verify-lines" class="lines"></div>
+    <div class="answers">
+      <button class="btn yes big" id="ans-yes" type="button">Yes, I made it</button>
+      <button class="btn no big" id="ans-no" type="button">No, it wasn't me</button>
+      <button class="btn maybe big" id="ans-unsure" type="button">Not sure</button>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="btn-mic" type="button" hidden>
+        <span class="micdot" aria-hidden="true"></span><span id="mic-label">Speak your answer</span>
+      </button>
+      <button class="btn ghost" id="btn-replay" type="button">Hear again</button>
+    </div>
+    <p class="hint" id="verify-note" role="status"></p>
+  </section>
+
+  <!-- waiting after a reply -->
+  <section class="screen" id="screen-waiting" hidden>
+    <div class="hero"><div class="spinner" aria-hidden="true"></div><h1 id="waiting-title">Thank you. Checking…</h1></div>
+  </section>
+
+  <!-- 4. Protected -->
+  <section class="screen" id="screen-protected" hidden>
+    <div class="hero"><div class="shield ok" aria-hidden="true"></div><h1 id="protected-title">You are protected</h1></div>
+    <ul class="checks" id="protected-list"></ul>
+  </section>
+
+  <!-- 5. Report now -->
+  <section class="screen" id="screen-report" hidden>
+    <h1 id="report-title">Report it now</h1>
+    <div class="card">
+      <div class="label" id="report-steps-label">Steps</div>
+      <ol class="steps" id="report-steps"></ol>
+    </div>
+    <div class="card">
+      <div class="label" id="report-summary-label">Summary to copy</div>
+      <textarea id="report-summary" rows="7" readonly></textarea>
+      <button class="btn primary" id="btn-copy" type="button">Copy</button>
+    </div>
+    <div class="card" id="report-fields-card" hidden>
+      <div class="label" id="report-fields-label">Details for the portal</div>
+      <dl class="fields" id="report-fields"></dl>
+    </div>
+    <div class="row">
+      <a class="btn call big" id="btn-call" href="tel:1930">Call 1930</a>
+      <a class="btn link big" id="btn-portal" href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer">Open cybercrime.gov.in</a>
+    </div>
+    <form class="card" id="ack-form" autocomplete="off">
+      <label class="label" for="ack-input" id="ack-label">Acknowledgement number from the portal</label>
+      <input id="ack-input" type="text" inputmode="text" autocapitalize="characters" maxlength="40" minlength="4">
+      <button class="btn primary" id="ack-submit" type="submit">Submit</button>
+      <p class="hint err" id="ack-error" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- 6. Released / Done -->
+  <section class="screen" id="screen-close" hidden>
+    <div class="hero"><div class="shield ok" aria-hidden="true"></div><h1 id="close-title">Done</h1></div>
+    <div id="close-lines" class="lines center"></div>
+  </section>
+
+</main>
+
+<footer class="safety" id="safety">Guardian will never ask for your OTP, PIN or password.</footer>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="app.js"></script>
+</body>
 </html>
