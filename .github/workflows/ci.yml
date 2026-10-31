@@ -22,4 +22,4 @@ jobs:
           pip install pytest pytest-asyncio anyio
       - name: Run Test Suite
         run: |
-          pytest -v
+          pytest tests/ -v
