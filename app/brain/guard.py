@@ -22,7 +22,19 @@ _BUILTIN_BANNED = [
     r"we (will|shall) (freeze|return|recover|get your money)",
     r"money back",
     r"वापस मिल",
+    r"रिफंड (मिल|हो) जाएगा",
+    r"लौटा (देंगे|दिया जाएगा)",
     r"రిఫండ్ వస్తుంది",
+    r"తిరిగి (వస్తుంది|ఇస్తాము|ఇస్తాం)",
+    # Hinglish (Latin-script Hindi) refund promises
+    r"\bwapas (mil|kar|de)",
+    r"\blauta?a? ?denge\b",
+    r"\brefund (mil|ho) jayega\b",
+    # Asking the victim for any code (OTP by another name) — Tier 3 REQUEST_OTP_PIN
+    r"\b(enter|share|tell|give|send|read out|type)\b[^.]{0,30}\bcodes?\b",
+    # Claims of Tier-3 actions we never take (FREEZE_BENEFICIARY, FILE_POLICE_COMPLAINT)
+    r"\bwill freeze\b|\bfrozen\b",
+    r"complaint (has been|was|is being|is) (filed|lodged|registered)",
 ]
 
 _PLACEHOLDER_RE = re.compile(r"\{([a-z_]+)\}")
