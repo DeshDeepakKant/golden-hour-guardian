@@ -6,11 +6,12 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException
 
-from app import metrics, orchestrator, orchestrator_tasks as tasks, pending, tools
+from app import metrics, orchestrator, orchestrator_tasks as tasks, pending, store, tools
 from app.agents import voice
 from app.bus import bus
 from app.contracts import FraudAlert, VictimReport, VictimResponse
 from app.db import connect, init_db
+from app.repo import repo
 from mocks import scenarios, seed as seed_mod
 from mocks.partners import MARKETING_DELAY_S
 
@@ -55,10 +56,15 @@ async def _flush_marketing() -> None:
 
 async def _scripted_reply(case_id: str, reply: dict, delay: float) -> None:
     await asyncio.sleep(max(0.0, delay))
+    channel = reply.get("channel") or "APP_TRUSTED_DEVICE"
+    device = None
+    case = store.get_case(case_id)
+    if case is not None and channel == "APP_TRUSTED_DEVICE":   # scripted victim taps on their own phone
+        device = repo.user_profile(case.user_id).get("trusted_device")
     await voice.handle_response(VictimResponse(
         case_id=case_id, answer=reply.get("answer"), transcript=reply.get("transcript"),
-        lang=reply.get("lang") or "en", channel=reply.get("channel") or "APP_TRUSTED_DEVICE",
-    ))
+        lang=reply.get("lang") or "en", channel=channel,
+    ), device_id=device)
 
 
 @router.post("/sim/reset")

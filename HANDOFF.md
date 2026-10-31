@@ -142,3 +142,15 @@ SPEC §12 demo acceptance passes twice in a row, once with Ollama stopped. `make
   for demos, `/sim/reset` first and run one scenario per user at a time.
 - Not verified: mic speech input, vibration.
 - Next step: PROMPTS.md → P3a.
+
+### 2026-10-31 — Session 1, Phase 3a/3b + review fixes — DONE
+- QA: 102 new e2e/red-team tests; 6 guard gaps found and fixed (QA.md).
+- Review (REVIEW.md): 4 must / 6 should / 6 nice. Human chose all must + should + N5; all fixed
+  (status table at the end of REVIEW.md). N1–N4, N6 deferred.
+- Tests: 272/272 (`make test`). Live rerun of all 5 scenarios: same expected end states; ato
+  T_protect 4.0 s; rejecting EXTEND_HOLD now releases the hold.
+- New behaviour to know: `/victim/respond` needs header `X-Guardian-Device: dev_<name>_phone` to
+  count as trusted (API_NOTES.md); only button taps can be YES_MINE. Env: GUARDIAN_HOLD_MAX_S,
+  GUARDIAN_HOLD_EXTEND_S. Use `make demo-run` on stage.
+- Open: Ollama not installed → M4 bench + §12 step 8 can't be meaningfully run here.
+- Next step: PROMPTS.md → P3c.

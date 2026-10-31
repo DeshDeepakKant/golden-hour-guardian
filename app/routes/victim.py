@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Header, HTTPException
 
 from app import audit, pending, store, texts, tools
 from app.agents import voice
@@ -19,9 +19,11 @@ async def victim_pending(user_id: str) -> Optional[dict]:
 
 
 @router.post("/victim/respond")
-async def victim_respond(resp: VictimResponse) -> dict:
+async def victim_respond(resp: VictimResponse,
+                         x_guardian_device: Optional[str] = Header(default=None)) -> dict:
+    # Trust comes from the device header checked against the user's profile, never from resp.channel.
     try:
-        return await voice.handle_response(resp)
+        return await voice.handle_response(resp, device_id=x_guardian_device)
     except LookupError:
         raise HTTPException(404, "case not found")
     except ValueError as e:

@@ -19,10 +19,13 @@
 
   // ---------- helpers ----------
   function clean(s) {
-    // Hard UI rule: never show these wordings, whatever the server sends.
-    return String(s == null ? '' : s)
-      .replace(/frozen/gi, 'held')
-      .replace(/refund guaranteed/gi, 'no refund promised');
+    // Show exactly what the server/log holds; never rewrite wording (REVIEW S5).
+    return String(s == null ? '' : s);
+  }
+  // Surface (not hide) banned outcome wording that slipped past the server-side guard.
+  var GUARD_MISS = /\bfrozen\b|\bguarantee|will be (refunded|returned|reversed|recovered)/i;
+  function guardMiss(s) {
+    return GUARD_MISS.test(String(s || '')) ? h('span', { class: 'badge b-red', title: 'Banned wording in AI text', text: 'guard miss' }) : null;
   }
   function h(tag, attrs) {
     var el = document.createElement(tag);
@@ -397,7 +400,7 @@
     var ev = detail && detail.evidence;
     if (!ev) { box.appendChild(h('div', { class: 'muted', text: 'Evidence pack not built yet.' })); return; }
     box.appendChild(h('div', { class: 'small muted', text: 'Customer ' + ev.victim_name_masked + ' · mobile ' + ev.mobile_masked + ' · generated ' + fmtFull(ev.generated_at) }));
-    box.appendChild(h('p', { class: 'summary', text: ev.summary_en }));
+    box.appendChild(h('p', { class: 'summary', text: ev.summary_en }, guardMiss(ev.summary_en)));
     box.appendChild(h('div', { class: 'sub', text: 'Payments · total ' + inr(ev.total_amount_paise) }));
     var tb = h('tbody');
     (ev.txns || []).forEach(function (t) {
@@ -494,7 +497,7 @@
         h('span', { class: 'd-action', text: actionLabel(d.action) }),
         h('span', { class: 'chip t2', text: 'T2 needs you' })),
       h('button', { class: 'd-case', type: 'button', text: 'case ' + d.case_id.replace(/^case_/, '#'), onclick: function () { selectCase(d.case_id); } }),
-      h('div', { class: 'd-why', text: d.rationale }),
+      h('div', { class: 'd-why', text: d.rationale }, guardMiss(d.rationale)),
       note, err,
       h('div', { class: 'd-btns' },
         h('button', { class: 'btn btn-approve', id: 'dec-approve-' + id, type: 'button', text: 'Approve', onclick: function () { submitDecision(d.decision_id, true); } }),

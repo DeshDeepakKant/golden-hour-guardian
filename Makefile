@@ -1,7 +1,7 @@
 PY ?= .venv/bin/python
 PIP ?= .venv/bin/pip
 
-.PHONY: venv install seed run test test-fast sim reset android demo bench check
+.PHONY: venv install seed run demo-run test test-fast sim reset android demo bench check
 
 venv:
 	python3 -m venv .venv
@@ -14,6 +14,10 @@ seed:
 
 run:
 	$(PY) -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+
+# Stage: no --reload, so a file save cannot restart the server and drop in-memory timers.
+demo-run:
+	$(PY) -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 test:
 	$(PY) -m pytest -q

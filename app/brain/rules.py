@@ -56,11 +56,11 @@ NOT_ME = [
     r"nenu cheyaledu", r"nenu cheyyaledu", r"nenu kaadu", r"nenu kadu", r"nadi kaadu", r"mosam", r"^\s*(kaadu|kadu|ledu)\b",
 ]
 YES_MINE = [
-    r"^\s*(yes|yeah|yep|yup|ya|haan|han|haa|ha|hanji|ji haan|ok|okay)\b", r"\byes\b", r"it was me", r"it'?s me", r"that was me",
+    r"^\s*(yes|yeah|yep|yup|ya|hanji|ji haan)\b", r"\byes\b", r"it was me", r"it'?s me", r"that was me",
     r"\bi did\b", r"i made (it|them|these|the)", r"genuine", r"i authori[sz]ed",
-    r"maine kiya", r"maine hi", r"mene kiya", r"meine kiya", r"main ne kiya", r"mera hi", r"sahi hai", r"theek hai",
-    r"हाँ", r"हां", r"जी हाँ", r"जी हां", r"मैंने किया", r"मैंने ही", r"मैने ही", r"मैने किया", r"सही है", r"मेरा ही",
-    r"అవును", r"నేనే", r"నేనే చేశాను", r"నేను చేశాను", r"నేను చేసాను", r"సరే",
+    r"maine kiya", r"maine hi", r"mene kiya", r"meine kiya", r"main ne kiya", r"mera hi",
+    r"हाँ", r"हां", r"जी हाँ", r"जी हां", r"मैंने किया", r"मैंने ही", r"मैने ही", r"मैने किया", r"मेरा ही",
+    r"అవును", r"నేనే", r"నేనే చేశాను", r"నేను చేశాను", r"నేను చేసాను",
     r"avunu", r"nenne", r"nenu chesanu", r"nenu chesaanu", r"nenu chesa",
 ]
 

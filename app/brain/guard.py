@@ -1,8 +1,8 @@
 """Output guard for LLM text. Fail -> caller uses a deterministic template.
 
 Rules: banned patterns (config/policy.yaml llm_guard + built-ins), max length, no digit runs >= 3
-outside placeholders (numbers come from code), no URLs except cybercrime.gov.in, no unknown
-placeholders, and the text must be in the right script for hi/te.
+and no 5+ digits split by short separators, outside placeholders (numbers come from code), no URLs
+except cybercrime.gov.in, no unknown placeholders, and the text must be in the right script for hi/te.
 """
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import re
 
 from app.config import POLICY
 
-ALLOWED_PLACEHOLDERS = frozenset({"amount", "count", "time", "payees", "city", "ack"})
+ALLOWED_PLACEHOLDERS = frozenset({"amount", "count", "first", "time", "payees", "city", "ack"})
 ALLOWED_DOMAIN = "cybercrime.gov.in"
 ALLOWED_NUMBERS = frozenset({"1930"})  # national cyber-fraud helpline, fixed fact
 MAX_LEN = 600
@@ -35,10 +35,16 @@ _BUILTIN_BANNED = [
     # Claims of Tier-3 actions we never take (FREEZE_BENEFICIARY, FILE_POLICE_COMPLAINT)
     r"\bwill freeze\b|\bfrozen\b",
     r"complaint (has been|was|is being|is) (filed|lodged|registered)",
+    # Outcome claims / refund promises the earlier list missed (REVIEW S1)
+    r"वापस (आ|कर) (जा|दे)",
+    r"money (will|would) come back",
+    r"(have|has) (been )?(recovered|returned|refunded)",
+    r"account (is|has been) (blocked|frozen)",
 ]
 
 _PLACEHOLDER_RE = re.compile(r"\{([a-z_]+)\}")
 _DIGIT_RUN_RE = re.compile(r"\d{3,}")
+_SPACED_DIGITS_RE = re.compile(r"(?:\d\D{0,3}){5,}")  # "98 76 54 32 10": 5+ digits, small gaps
 _URL_RE = re.compile(
     r"(?:https?://|www\.)\S+"
     r"|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|in|org|net|gov|io|co|app|me|ly|xyz|info|biz|link|top)\b(?:/\S*)?",
@@ -68,6 +74,9 @@ def check(text: str, lang: str = "en", max_len: int = MAX_LEN) -> tuple[bool, st
     for run in _DIGIT_RUN_RE.findall(bare):
         if run not in ALLOWED_NUMBERS:
             return False, "digit_run"
+    unallowed = re.sub("|".join(rf"\b{n}\b" for n in ALLOWED_NUMBERS), " ", bare)
+    if _SPACED_DIGITS_RE.search(unallowed):
+        return False, "digit_run"
     for m in _URL_RE.finditer(bare):
         url = m.group(0).lower().rstrip(".,;:!?)'\"")
         url = re.sub(r"^https?://", "", url).removeprefix("www.").rstrip("/")

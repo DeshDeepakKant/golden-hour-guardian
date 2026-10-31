@@ -72,6 +72,23 @@ class OllamaClient:
     def _mark_down(self) -> None:
         self._up, self._up_at = False, time.monotonic()
 
+    # -- warm-up ----------------------------------------------------------
+    def warm(self) -> bool:
+        """Load the model into memory with one tiny chat (+ keep_alive). Never raises."""
+        if not self.enabled:
+            return False
+        try:
+            if not self.is_up():
+                return False
+            cfg = _cfg()
+            r = httpx.post(f"{cfg.get('base_url', 'http://127.0.0.1:11434')}/api/chat", json={
+                "model": self.model, "messages": [{"role": "user", "content": "ok"}], "stream": False,
+                "keep_alive": cfg.get("keep_alive", "30m"), "options": {"num_predict": 1},
+            }, timeout=float(cfg.get("warm_timeout_s", 60)))
+            return r.status_code == 200
+        except Exception:
+            return False
+
     # -- chat -------------------------------------------------------------
     def chat_json(self, system: str, user: str, schema: dict[str, Any]) -> Optional[dict[str, Any]]:
         """One structured chat call. Returns the parsed JSON object or None on any problem."""

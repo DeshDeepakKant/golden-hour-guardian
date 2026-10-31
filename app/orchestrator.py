@@ -56,7 +56,7 @@ def create_from_report(report: VictimReport) -> Case:
     case.txn_ids = [t.txn_id for t in suspects]
     store.save_case(case)
     audit.append(case.case_id, EventType.VICTIM_REPORT_RECEIVED, "victim", None,
-                 {"channel": report.channel, "lang": report.lang, "text": report.text[:300],
+                 {"channel": report.channel, "lang": report.lang, "text": (audit.redact_digits(report.text) or "")[:300],
                   "txn_ids": case.txn_ids})
     signals = sentinel.compute_signals(report.user_id, suspects, profile)
     case.signals = signals
@@ -98,8 +98,8 @@ async def run_alert_pipeline(case_id: str) -> None:
     else:
         fsm.transition(case, S.VERIFYING, "agent:sentinel", "medium risk: verify, no hold")
     shield.suppress_marketing(store.get_case(case_id))      # Conductor-lite: no cross-sell while open
+    await voice.start_verification(case_id)                  # victim first (SPEC section 12: < 5 s)
     tasks.spawn(case_id, _explain(case_id), "explain_risk")  # officer-facing; must not delay the victim
-    await voice.start_verification(case_id)
 
 
 async def _explain(case_id: str) -> None:

@@ -95,3 +95,20 @@ Fix: don't tap it live unless the venue Wi-Fi has been checked; keep a screensho
 
 8. **"Does this really work in Hindi and Telugu?"**
    Templates and reply rules exist for en, hi and te, and the fallback path works without the model. Native-speaker review is still a TODO (`app/texts.py:2`), and the 4B model's Telugu quality has not been measured because it has never run live.
+
+## Fix status (main session, 2026-10-31, H4 decision: all must + should + N5)
+
+| Item | Status | Where |
+|---|---|---|
+| M1 | FIXED — typed/spoken YES_MINE → UNSURE; bare ok/ha/theek hai no longer YES_MINE | app/agents/voice.py, app/brain/rules.py |
+| M2 | FIXED — trust decided server-side from `X-Guardian-Device` == non-revoked trusted_device; body channel ignored | app/agents/voice.py, app/routes/victim.py, app/routes/sim.py, web/victim/app.js, scripts/android.sh |
+| M3 | FIXED — fraud hold expires at max_without_officer unless EXTEND_HOLD approved; rejection releases at once (verified live: CLOSED, hold_active=False) | app/agents/shield.py, desk.py, app/tools.py |
+| M4 | FIXED in code — victim prompt sent before explain; officer-facing LLM calls on their own lane; startup warm-up. **Still open: `make bench` on the demo laptop once Ollama is installed.** | app/orchestrator.py, app/brain_call.py, app/brain/llm.py, api.py, app/main.py |
+| S1 | FIXED — 4 patterns + spaced-digit check | app/brain/guard.py |
+| S2 | FIXED — victim transcript/report digits redacted before audit/SSE | app/audit.py, app/orchestrator.py |
+| S3 | FIXED — "Your account is now secured" (en/hi/te) | web/victim/* |
+| S4 | FIXED — caller-check line on callback/done (en/hi/te) | app/texts.py |
+| S5 | FIXED — no rewriting; red "guard miss" badge | web/officer/app.js |
+| S6 | FIXED — city from earliest non-trusted device; "Between {first} and {time}" (single-time variant) | app/brain/facts.py, templates.py, api.py |
+| N5 | FIXED — `make demo-run` (no --reload) | Makefile |
+| N1–N4, N6 | Deferred (not selected) | — |

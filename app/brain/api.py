@@ -50,6 +50,13 @@ class Brain:
         except Exception:
             return False
 
+    def warm(self) -> bool:
+        """Best-effort model warm-up at startup; False (silently) when off or unreachable."""
+        try:
+            return bool(llm.warm())
+        except Exception:
+            return False
+
     def _ask(self, task: str, facts_prompt: dict[str, Any], schema: dict[str, Any],
              lang: str = "en") -> Optional[dict[str, Any]]:
         try:
@@ -160,11 +167,14 @@ class Brain:
             f = F.pack_facts(pack)
 
             def template(l: str) -> str:
-                return T.fill(T.NARRATIVE[l], {**f.values, "signals": T.signals_text(f.signals, l)}, l)
+                one_time = f.values["first"] == f.values["time"]
+                tpl = (T.NARRATIVE_ONE_TIME if one_time else T.NARRATIVE)[l]
+                return T.fill(tpl, {**f.values, "signals": T.signals_text(f.signals, l)}, l)
 
             def ask(l: str) -> Optional[str]:
                 out = self._ask("Write 2 or 3 factual sentences summarising the suspicious payments for a "
-                                "case file. Use {count}, {amount}, {time}, {payees}, {city}. No blame, "
+                                "case file. Use {count}, {amount}, {first} (first payment time), "
+                                "{time} (last payment time), {payees}, {city}. No blame, "
                                 "no promises.", f.prompt, _SCHEMA_TEXT, l)
                 t = out.get("text") if out else None
                 return T.fill(t, f.values, l) if self._good(t, l, ("{amount}", "{count}")) else None

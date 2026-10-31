@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import threading
 from datetime import datetime
 from typing import Any, Optional
@@ -16,6 +17,22 @@ from app.db import connect
 from app.util import new_id, parse_ts
 
 _lock = threading.Lock()
+
+# DPDP minimisation: digit runs a victim speaks/types (OTP, PIN, phone no.) are never persisted or
+# broadcast. Only victim free-text keys are touched; system amounts/IDs are left alone.
+_DIGITS_RE = re.compile(r"\d(?:[\s-]?\d){3,}")
+_VICTIM_TEXT = {EventType.VICTIM_REPLIED: ("transcript",), EventType.VICTIM_REPORT_RECEIVED: ("text",)}
+
+
+def redact_digits(text: Optional[str]) -> Optional[str]:
+    return _DIGITS_RE.sub("[digits removed]", text) if isinstance(text, str) else text
+
+
+def _redact(type_: EventType, payload: dict[str, Any]) -> dict[str, Any]:
+    keys = _VICTIM_TEXT.get(EventType(type_), ())
+    if not any(isinstance(payload.get(k), str) for k in keys):
+        return payload
+    return {**payload, **{k: redact_digits(payload[k]) for k in keys if isinstance(payload.get(k), str)}}
 
 
 def canonical_json(obj: Any) -> str:
@@ -42,7 +59,7 @@ def _event_from_row(r) -> CaseEvent:
 
 def append(case_id: str, type: EventType, actor: str, tier: Optional[Tier] = None,
            payload: Optional[dict[str, Any]] = None, publish: bool = True) -> CaseEvent:
-    payload_norm = json.loads(json.dumps(payload or {}, default=str))   # JSON-round-trip stable
+    payload_norm = json.loads(json.dumps(_redact(type, payload or {}), default=str))   # JSON-round-trip stable
     tier_i = int(tier) if tier is not None else None
     ts = utcnow().isoformat()
     event_id = new_id("evt")

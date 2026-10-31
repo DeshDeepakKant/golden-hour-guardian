@@ -12,9 +12,10 @@ from app import audit, brain_call, fsm, orchestrator_tasks as tasks, store, text
 from app.agents import desk, sentinel
 from app.config import POLICY
 from app.contracts import (
-    Action, Case, CaseState as S, EventType, ReplyIntent, VictimResponse, utcnow,
+    Action, Case, CaseState as S, Channel, EventType, ReplyIntent, VictimResponse, utcnow,
 )
 from app.policy import PolicyBlocked
+from app.repo import repo
 from app.util import fmt_inr
 from datetime import timedelta
 
@@ -93,7 +94,19 @@ def _clip(text: Optional[str], n: int = 300) -> Optional[str]:
     return text if text is None or len(text) <= n else text[:n] + "..."
 
 
-async def handle_response(resp: VictimResponse) -> dict[str, Any]:
+def reply_channel(user_id: str, device_id: Optional[str]) -> Channel:
+    """The server decides the channel: only the user's own trusted device counts as trusted.
+    resp.channel from the request body is ignored for trust (REVIEW M2)."""
+    if not device_id:
+        return Channel.VOICE_REGISTERED_NO
+    profile = repo.user_profile(user_id)
+    if profile.get("trusted_device") and device_id == profile["trusted_device"] \
+            and not profile.get("trusted_device_revoked"):
+        return Channel.APP_TRUSTED_DEVICE
+    return Channel.VOICE_REGISTERED_NO
+
+
+async def handle_response(resp: VictimResponse, device_id: Optional[str] = None) -> dict[str, Any]:
     case = store.get_case(resp.case_id)
     if case is None:
         raise LookupError(resp.case_id)
@@ -122,13 +135,16 @@ async def handle_response(resp: VictimResponse) -> dict[str, Any]:
     intent = raw
     if via == "transcript" and intent in MIN_CONF and conf < MIN_CONF[intent]:
         intent = ReplyIntent.UNSURE               # not confident enough to act on
+    if via == "transcript" and intent == ReplyIntent.YES_MINE:
+        intent = ReplyIntent.UNSURE               # a spoken/typed yes never releases; ask for a tap (M1)
+    channel = reply_channel(case.user_id, device_id)
 
     if resp.lang != case.lang:
         case.lang = resp.lang
         store.save_case(case)
     audit.append(case.case_id, EventType.VICTIM_REPLIED, "victim", None,
                  {"intent": intent.value, "raw_intent": raw.value, "confidence": conf, "via": via,
-                  "channel": resp.channel.value, "transcript": _clip(resp.transcript)})
+                  "channel": channel.value, "claimed_channel": resp.channel.value, "transcript": _clip(resp.transcript)})
     tasks.cancel(case.case_id, "verify_timeout")
 
     # 2) fixed intent -> action mapping (no LLM involvement past this point)
@@ -139,7 +155,7 @@ async def handle_response(resp: VictimResponse) -> dict[str, Any]:
         tasks.spawn(cid, orchestrator.run_fraud_pipeline(cid), "fraud_pipeline")
     elif intent == ReplyIntent.YES_MINE:
         try:
-            tools.release_hold_trusted(case, ACTOR, resp.channel)
+            tools.release_hold_trusted(case, ACTOR, channel)
         except PolicyBlocked:
             await desk.escalate(cid, "UNTRUSTED_YES", Action.RELEASE_HOLD_UNTRUSTED)
             send_simple(store.get_case(cid), "done", texts.CALLBACK)

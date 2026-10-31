@@ -31,7 +31,9 @@ done     {"variant":"done","messages":["Thank you. A member of our fraud team wi
 - `GET /cases?state=` -> `[Case]` newest first. `GET /cases/{id}` -> `{case, events[], decisions[], evidence|null}`.
 - `GET /officer/queue` -> `[{decision, case:{case_id,user_id,state,risk_score,origin,t_alert,hold_active,txn_ids,victim_name_masked}, sla_age_s}]` (PENDING only).
 - `POST /decisions/{id}` body `{decision_id, approve, officer?, note?}` -> `Decision`; 404 unknown, 409 already decided, 403 if policy blocks. Approving runs the Tier-2 tool. Case closes when no PENDING decisions remain.
-- `POST /victim/respond` body `{case_id, answer?|transcript?, lang, channel}` -> `{state}`. 404 case, 422 neither answer nor transcript. A reply to a case that is not awaiting an answer is ignored (state returned).
+- `POST /victim/respond` body `{case_id, answer?|transcript?, lang, channel}` -> `{state}`. 404 case, 422 neither answer nor transcript.
+  Trust is decided by the server: send header `X-Guardian-Device: <device_id>`; the reply counts as APP_TRUSTED_DEVICE only if it equals the user's (non-revoked) `trusted_device` (seed: `dev_<name>_phone`). Missing/wrong header → untrusted (Tier-2 path). Body `channel` is ignored. Only a button `answer` can be YES_MINE; a typed/spoken yes is treated as UNSURE.
+  curl example: `curl -X POST localhost:8000/victim/respond -H 'content-type: application/json' -H 'X-Guardian-Device: dev_ravi_phone' -d '{"case_id":"<id>","answer":"NOT_ME"}'` A reply to a case that is not awaiting an answer is ignored (state returned).
 - `POST /victim/ncrp-ack` `{case_id, ack_number}` -> `{ok:true}`; 422 if the number has odd characters.
 - `GET /audit/{case_id}/verify` -> `{ok, length, broken_at}` (`broken_at` = DB seq of first bad row).
 - `POST /sim/scenario/{name}?auto_reply=true&delay=4` -> `{case_id, scenario, auto_reply}`. Names: ato genuine inbound noresponse injection. `POST /sim/reset` -> `{ok:true}` (cancels tasks, reseeds; SSE clients stay connected, refetch `/cases`).

@@ -16,7 +16,11 @@ def respond(client, cid, answer=None, transcript=None, lang="en", channel="APP_T
         body["answer"] = answer
     if transcript:
         body["transcript"] = transcript
-    r = client.post("/victim/respond", json=body)
+    headers = {}
+    if channel == "APP_TRUSTED_DEVICE":   # the server only trusts the user's own device id (M2)
+        uid = client.get(f"/cases/{cid}").json()["case"]["user_id"]
+        headers["X-Guardian-Device"] = repo.user_profile(uid)["trusted_device"]
+    r = client.post("/victim/respond", json=body, headers=headers)
     assert r.status_code == 200, r.text
     return r.json()
 

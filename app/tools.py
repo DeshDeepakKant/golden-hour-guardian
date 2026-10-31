@@ -6,6 +6,7 @@ PolicyBlocked, so red-team tests can call them and see the POLICY_BLOCKED event.
 from __future__ import annotations
 
 import math
+import os
 from datetime import timedelta
 from typing import Any, Optional
 
@@ -61,11 +62,12 @@ def release_hold_untrusted(case: Case, actor: str, decision_id: str) -> None:
     _release(case, actor, Tier.T2_HUMAN, "officer approved release (untrusted channel)", decision_id)
 
 
-def expire_hold(case: Case, actor: str = "agent:shield") -> None:
-    """Auto-expiry of a Tier-1 hold (part of the PLACE_TEMP_HOLD contract)."""
+def expire_hold(case: Case, actor: str = "agent:shield", reason: str = "hold auto-expired",
+                decision_id: Optional[str] = None) -> None:
+    """Ending a hold (auto-expiry, or an officer refusing to extend it). Only ever loosens."""
     store.refresh(case)
     policy.require(Action.PLACE_TEMP_HOLD, case, actor)
-    _release(case, actor, Tier.T1_AUTO, "hold auto-expired")
+    _release(case, actor, Tier.T1_AUTO, reason, decision_id)
 
 
 def _release(case: Case, actor: str, tier: Tier, why: str, decision_id: Optional[str] = None) -> None:
@@ -182,8 +184,9 @@ def raise_dispute(case: Case, actor: str, decision_id: str) -> dict[str, Any]:
 def extend_hold(case: Case, actor: str, decision_id: str, minutes: Optional[int] = None) -> dict[str, Any]:
     store.refresh(case)
     policy.require(Action.EXTEND_HOLD, case, actor, decision_id)
-    minutes = minutes or POLICY["hold"].get("extend_minutes", 1440)
-    ref = partners.place_hold(case.user_id, minutes)
+    env = os.environ.get("GUARDIAN_HOLD_EXTEND_S")      # test override of the extension length
+    minutes = minutes or (float(env) / 60 if env else POLICY["hold"].get("extend_minutes", 1440))
+    ref = partners.place_hold(case.user_id, max(1, math.ceil(minutes)))
     case.hold_active = True
     case.hold_expires_at = utcnow() + timedelta(minutes=minutes)
     store.save_case(case)

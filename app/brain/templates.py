@@ -2,7 +2,7 @@
 
 # TODO: native speaker check  (Hindi and Telugu strings; see HANDOFF H5)
 
-Placeholders: {amount} {count} {time} {payees} {city} {ack}. Code fills them (see `fill`).
+Placeholders: {amount} {count} {first} {time} {payees} {city} {ack}. Code fills them (see `fill`).
 Amounts arrive pre-formatted ("₹24,999"); do not spell numbers in words (TTS speaks the digits).
 Internal-only extras used by code templates: {signals}, {phrase}.
 """
@@ -86,20 +86,27 @@ EXPLAIN_RISK = (
 # --- evidence_narratives --------------------------------------------------
 NARRATIVE = {
     "en": (
-        "At {time}, {count} payment(s) totalling {amount} left this account to {payees}. "
+        "Between {first} and {time}, {count} payment(s) totalling {amount} left this account to {payees}. "
         "The account showed {signals}. Recent activity was seen from {city}. "
         "This summary records facts only and does not assign blame."
     ),
     "hi": (
-        "{time} पर आपके खाते से {payees} को {count} भुगतान हुए, कुल {amount}। "
+        "{first} से {time} के बीच आपके खाते से {payees} को {count} भुगतान हुए, कुल {amount}। "
         "खाते में {signals} दिखे। हाल की गतिविधि {city} से दिखी। "
         "यह सारांश केवल तथ्य बताता है।"
     ),
     "te": (
-        "{time} కి మీ ఖాతా నుండి {payees} కు {count} చెల్లింపులు జరిగాయి, మొత్తం {amount}. "
+        "{first} నుండి {time} మధ్య మీ ఖాతా నుండి {payees} కు {count} చెల్లింపులు జరిగాయి, మొత్తం {amount}. "
         "ఖాతాలో {signals} కనిపించాయి. ఇటీవలి కార్యకలాపం {city} నుండి కనిపించింది. "
         "ఈ సారాంశం వాస్తవాలను మాత్రమే తెలుపుతుంది."
     ),
+}
+
+# Same narrative when all payments share one timestamp (avoids "Between X and X").
+NARRATIVE_ONE_TIME = {
+    "en": NARRATIVE["en"].replace("Between {first} and {time},", "At {time},"),
+    "hi": NARRATIVE["hi"].replace("{first} से {time} के बीच", "{time} पर"),
+    "te": NARRATIVE["te"].replace("{first} నుండి {time} మధ్య", "{time} కి"),
 }
 
 # --- decision_rationale (English, officer) --------------------------------

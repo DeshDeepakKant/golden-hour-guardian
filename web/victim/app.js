@@ -5,6 +5,8 @@
 
   const params = new URLSearchParams(location.search);
   const USER = params.get("user") || "usr_ravi";
+  // Device id (set by scripts/android.sh). The server, not this app, decides whether it is trusted.
+  const DEVICE = params.get("device") || "";
   const API = "/";   // same origin; absolute paths so it works from /victim/ and /victim
   const BCP47 = { en: "en-IN", hi: "hi-IN", te: "te-IN" };
   const MIN_PROTECTED_MS = 5000;   // keep "protected" visible before the guidance replaces it
@@ -23,7 +25,7 @@
       micDenied: "Microphone not allowed. Please tap a button.", micNone: "Could not hear you. Please try again or tap a button.",
       noVoice: "Voice not available for this language. Please read the text.",
       waiting: "Thank you. Checking…",
-      protectedTitle: "You are protected",
+      protectedTitle: "Your account is now secured",
       acts: {
         outgoing_payments_paused: "Your outgoing payments are paused for now.",
         device_signed_out: "The suspicious phone has been signed out.",
@@ -49,7 +51,7 @@
       micDenied: "माइक्रोफोन की अनुमति नहीं है। कृपया बटन दबाएं।", micNone: "आवाज़ सुनाई नहीं दी। फिर कोशिश करें या बटन दबाएं।",
       noVoice: "इस भाषा के लिए आवाज़ उपलब्ध नहीं है। कृपया लिखा हुआ पढ़ें।",
       waiting: "धन्यवाद। जांच हो रही है…",
-      protectedTitle: "आप सुरक्षित हैं",
+      protectedTitle: "आपका खाता अब सुरक्षित किया गया",
       acts: {
         outgoing_payments_paused: "आपके आउटगोइंग भुगतान अभी रोके गए हैं।",
         device_signed_out: "संदिग्ध फोन को साइन आउट कर दिया गया है।",
@@ -75,7 +77,7 @@
       micDenied: "మైక్రోఫోన్ అనుమతి లేదు. దయచేసి బటన్ నొక్కండి.", micNone: "వినిపించలేదు. మళ్లీ ప్రయత్నించండి లేదా బటన్ నొక్కండి.",
       noVoice: "ఈ భాషకు వాయిస్ అందుబాటులో లేదు. దయచేసి రాసింది చదవండి.",
       waiting: "ధన్యవాదాలు. పరిశీలిస్తున్నాం…",
-      protectedTitle: "మీరు సురక్షితంగా ఉన్నారు",
+      protectedTitle: "మీ ఖాతా ఇప్పుడు భద్రపరచబడింది",
       acts: {
         outgoing_payments_paused: "మీ చెల్లింపులు ప్రస్తుతానికి నిలిపివేయబడ్డాయి.",
         device_signed_out: "అనుమానాస్పద ఫోన్ సైన్ అవుట్ చేయబడింది.",
@@ -335,7 +337,9 @@
   }
 
   async function postJSON(path, body) {
-    const r = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const headers = { "Content-Type": "application/json" };
+    if (DEVICE) headers["X-Guardian-Device"] = DEVICE;
+    const r = await fetch(API + path, { method: "POST", headers: headers, body: JSON.stringify(body) });
     return r;
   }
 

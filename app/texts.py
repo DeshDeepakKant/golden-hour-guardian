@@ -44,16 +44,28 @@ RELEASED = {
     "te": "ధన్యవాదాలు. మీ చెల్లింపులు సాధారణ స్థితికి వచ్చాయి.",
 }
 
+# How to recognise the genuine caller (REVIEW S4): appended to every close / callback message.
+CALLER_CHECK = {
+    "en": "Our caller will never ask for OTP, PIN, to install an app, or to move money. "
+          "If unsure, hang up and call 1930.",
+    "hi": "हमारा कॉल करने वाला कभी OTP, PIN, कोई ऐप इंस्टॉल करने या पैसे ट्रांसफ़र करने को नहीं कहेगा। "
+          "शक हो तो फ़ोन काटें और 1930 पर कॉल करें।",
+    "te": "మా నుండి కాల్ చేసేవారు ఎప్పుడూ OTP, PIN, ఏదైనా యాప్ ఇన్‌స్టాల్ చేయమని లేదా డబ్బు బదిలీ చేయమని అడగరు. "
+          "సందేహం ఉంటే, కాల్ కట్ చేసి 1930 కు కాల్ చేయండి.",
+}
+
 CALLBACK = {
-    "en": "Thank you. A member of our fraud team will call you shortly.",
-    "hi": "धन्यवाद। हमारी फ़्रॉड टीम का एक सदस्य जल्द ही आपको कॉल करेगा।",
-    "te": "ధన్యవాదాలు. మా ఫ్రాడ్ బృంద సభ్యుడు త్వరలో మీకు కాల్ చేస్తారు.",
+    "en": "Thank you. A member of our fraud team will call you shortly. " + CALLER_CHECK["en"],
+    "hi": "धन्यवाद। हमारी फ़्रॉड टीम का एक सदस्य जल्द ही आपको कॉल करेगा। " + CALLER_CHECK["hi"],
+    "te": "ధన్యవాదాలు. మా ఫ్రాడ్ బృంద సభ్యుడు త్వరలో మీకు కాల్ చేస్తారు. " + CALLER_CHECK["te"],
 }
 
 DONE = {
-    "en": "Thank you. Your report details are saved. Our fraud team is reviewing your case.",
-    "hi": "धन्यवाद। आपकी रिपोर्ट की जानकारी सहेज ली गई है। हमारी फ़्रॉड टीम आपके मामले की समीक्षा कर रही है।",
-    "te": "ధన్యవాదాలు. మీ రిపోర్ట్ వివరాలు సేవ్ చేయబడ్డాయి. మా ఫ్రాడ్ బృందం మీ కేసును పరిశీలిస్తోంది.",
+    "en": "Thank you. Your report details are saved. Our fraud team is reviewing your case. " + CALLER_CHECK["en"],
+    "hi": "धन्यवाद। आपकी रिपोर्ट की जानकारी सहेज ली गई है। हमारी फ़्रॉड टीम आपके मामले की समीक्षा कर रही है। "
+          + CALLER_CHECK["hi"],
+    "te": "ధన్యవాదాలు. మీ రిపోర్ట్ వివరాలు సేవ్ చేయబడ్డాయి. మా ఫ్రాడ్ బృందం మీ కేసును పరిశీలిస్తోంది. "
+          + CALLER_CHECK["te"],
 }
 
 # Code-built trigger notes appended to decision rationales (facts from code, not the LLM).

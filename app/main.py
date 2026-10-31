@@ -1,6 +1,7 @@
 """FastAPI entry point."""
 from __future__ import annotations
 
+import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app import orchestrator_tasks, pending, tools
+from app.brain.api import brain
 from app.bus import bus
 from app.db import init_db
 from app.routes import cases, meta, sim, stream, victim, webhooks
@@ -22,6 +24,8 @@ async def lifespan(_app: FastAPI):
     pending.reset()
     tools.reset()
     bus.reset()
+    # fire-and-forget model warm-up (daemon thread: never blocks startup or shutdown)
+    threading.Thread(target=brain.warm, name="llm-warm", daemon=True).start()
     yield
     await orchestrator_tasks.cancel_all()    # tasks must not outlive the app (tests, reload)
 

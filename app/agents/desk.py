@@ -72,6 +72,13 @@ def apply(decision_id: str, body: OfficerDecisionIn) -> Decision:
     audit.append(case.case_id, EventType.DECISION_MADE, actor, Tier.T2_HUMAN,
                  {"phase": "officer_decision", "decision_id": decision.decision_id,
                   "action": decision.action.value, "approve": body.approve, "note": body.note})
+    if decision.action == Action.EXTEND_HOLD:
+        from app.agents import shield      # local import: shield -> sentinel; keep desk import-light
+        if body.approve:
+            shield.arm_expiry(case.case_id)            # the extended hold also ends on its own
+        elif store.get_case(case.case_id).hold_active:
+            tools.expire_hold(store.get_case(case.case_id), actor, "officer declined to extend the hold",
+                              decision.decision_id)
     case = store.get_case(case.case_id)
     case.t_officer_decided = utcnow()
     store.save_case(case)

@@ -101,8 +101,13 @@ def case_facts(case: Case, txns: list[Txn]) -> Facts:
 def pack_facts(pack: EvidencePack) -> Facts:
     sigs = top_signals(pack.signals)
     latest = max((t.ts for t in pack.txns), default=None)
+    first = min((t.ts for t in pack.txns), default=None)
+    # City of the first non-trusted device to appear (never the victim's own trusted phone).
     city = ""
-    for row in reversed(pack.device_timeline or []):
+    rows = sorted(pack.device_timeline or [], key=lambda r: str(r.get("first_seen") or ""))
+    for row in rows:
+        if row.get("trusted"):
+            continue
         c = row.get("geo_city") or row.get("city")
         if isinstance(c, str) and c.strip():
             city = c.strip()
@@ -110,6 +115,7 @@ def pack_facts(pack: EvidencePack) -> Facts:
     values = {
         "count": str(len(pack.txns)),
         "amount": format_inr(pack.total_amount_paise),
+        "first": format_ist(first) if first else "",
         "time": format_ist(latest) if latest else "",
         "payees": ", ".join(pack.payee_vpas[:3]),
         "city": city,
@@ -122,6 +128,6 @@ def pack_facts(pack: EvidencePack) -> Facts:
             "victim_name_masked": pack.victim_name_masked,
             "signal_codes": [s.value for s in sigs],
             "signal_meaning": [SIGNAL_PHRASES_EN[s] for s in sigs],
-            "available_placeholders": ["{count}", "{amount}", "{time}", "{payees}", "{city}"],
+            "available_placeholders": ["{count}", "{amount}", "{first}", "{time}", "{payees}", "{city}"],
         },
     )

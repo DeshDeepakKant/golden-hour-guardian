@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Connect the Android phone to the local Guardian server and open the victim app.
-# Usage: bash scripts/android.sh [user_id]     (default user: usr_ravi)
+# Usage: bash scripts/android.sh [user_id] [device_id]   (default: usr_ravi on its seeded trusted phone)
 set -euo pipefail
 USER_ID="${1:-usr_ravi}"
+# Seeded trusted device id is dev_<name>_phone (mocks/seed.py device_id_for). The server checks it.
+DEVICE_ID="${2:-dev_${USER_ID#usr_}_phone}"
 PORT=8000
-URL="http://localhost:${PORT}/victim/?user=${USER_ID}"
+URL="http://localhost:${PORT}/victim/?user=${USER_ID}&device=${DEVICE_ID}"
 
 command -v adb >/dev/null || { echo "adb not found: sudo apt install adb"; exit 1; }
 STATE=$(adb get-state 2>/dev/null || true)
