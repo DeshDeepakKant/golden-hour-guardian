@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/officer", "destination": "/web/officer/index.html" },
+    { "source": "/officer/(.*)", "destination": "/web/officer/$1" },
+    { "source": "/victim", "destination": "/web/victim/index.html" },
+    { "source": "/victim/(.*)", "destination": "/web/victim/$1" },
+    { "source": "/workflow.html", "destination": "/web/workflow.html" },
+    { "source": "/Golden_Hour_Guardian_Pitch_Deck.pptx", "destination": "/web/Golden_Hour_Guardian_Pitch_Deck.pptx" },
+    { "source": "/", "destination": "/web/index.html" },
+    { "source": "/(.*)", "destination": "/web/$1" }
+  ]
+}

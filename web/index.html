@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Golden Hour Guardian — Autonomous AI Teammates</title>
+  <meta name="description" content="Paytm Build for India Hackathon — Track 3: Autonomous AI Teammates for Fraud Containment">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2224%22>🛡️</text></svg>">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --card-hover: #1e293b;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #2563eb;
+      --accent-glow: rgba(37, 99, 235, 0.2);
+      --gold: #d97706;
+      --gold-bg: rgba(217, 119, 6, 0.12);
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.12);
+      --paytm-blue: #002970;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: rgba(17, 24, 39, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .logo-badge {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      font-weight: 800;
+      font-size: 1.1rem;
+      width: 2.25rem;
+      height: 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand-tag {
+      font-size: 0.75rem;
+      background: var(--gold-bg);
+      color: #fbbf24;
+      border: 1px solid rgba(217, 119, 6, 0.3);
+      padding: 0.2rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+    main {
+      flex: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+      width: 100%;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .hero-badge {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #60a5fa;
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      padding: 0.35rem 1rem;
+      border-radius: 9999px;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 auto 2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease-in-out;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+    }
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+    .card h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-secondary {
+      background: #1f2937;
+      color: var(--text);
+      border: 1px solid #374151;
+    }
+    .btn-secondary:hover {
+      background: #374151;
+    }
+    .meta-bar {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .api-config {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1;
+      min-width: 300px;
+    }
+    .api-input {
+      background: #0b0f19;
+      border: 1px solid #374151;
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      flex: 1;
+    }
+    .api-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .pill {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .pill-blue { background: rgba(37,99,235,0.2); color: #93c5fd; }
+    .pill-green { background: var(--green-bg); color: var(--green); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-group">
+      <div class="logo-badge">🛡️</div>
+      <div>
+        <div class="brand-title">Golden Hour Guardian</div>
+      </div>
+      <span class="brand-tag">Track 3: Autonomous AI Teammates</span>
+    </div>
+    <div class="status-pill">
+      <span class="status-dot" id="health-dot"></span>
+      <span id="health-text">Backend: Checking…</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-badge">Paytm Build for India AI Hackathon • Bengaluru</div>
+      <h1>Autonomous Fraud Defense Teammate</h1>
+      <p>
+        Delivering measurable outcomes in digital payments security. Intercepts social-engineering frauds in the critical first 60 minutes with <strong>autonomous triage</strong>, <strong>reversible hold containment</strong>, <strong>zero-secret voice dialogue</strong>, and <strong>pre-filled 1930 NCRP dossiers</strong>.
+      </p>
+    </section>
+
+    <div class="grid">
+      <!-- Officer Console Card -->
+      <div class="card">
+        <div>
+          <span class="card-icon">⚡</span>
+          <h2>Fraud Desk Officer Console <span class="pill pill-blue">Co-Pilot</span></h2>
+          <p>
+            Real-time operations dashboard with sub-second live SSE event streaming, decision queues, explainability pane, and cryptographic SHA-256 audit verification.
+          </p>
+        </div>
+        <a href="/officer/" class="btn btn-primary" id="link-officer">Launch Officer Console &rarr;</a>
+      </div>
+
+      <!-- Victim App Card -->
+      <div class="card">
+        <div>
+          <span class="card-icon">📱</span>
+          <h2>Victim Mobile Experience <span class="pill pill-green">PWA</span></h2>
+          <p>
+            Interactive victim verification interface. Delivers calm, zero-secret spoken &amp; visual prompts in English/Hindi, instant one-tap confirmation, and 1930 portal guidance.
+          </p>
+        </div>
+        <a href="/victim/" class="btn btn-primary" id="link-victim">Launch Victim App &rarr;</a>
+      </div>
+
+      <!-- System Architecture & Workflow Card -->
+      <div class="card">
+        <div>
+          <span class="card-icon">🗺️</span>
+          <h2>Full Application Workflow <span class="pill pill-blue">Docs</span></h2>
+          <p>
+            Interactive diagram and comprehensive step-by-step trace of Sentinel, Shield, Voice, Scribe, and Desk agents with 3-tier safety boundaries.
+          </p>
+        </div>
+        <a href="/workflow.html" class="btn btn-secondary">Explore Interactive Workflow &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Backend Configuration & Presentation Links -->
+    <div class="meta-bar">
+      <div class="api-config">
+        <label for="api-url" style="font-size:0.85rem; font-weight:600; color:var(--muted); white-space:nowrap;">API Endpoint:</label>
+        <input type="text" id="api-url" class="api-input" placeholder="http://localhost:8000 or Cloud Backend URL">
+        <button class="btn btn-secondary" style="padding:0.45rem 0.85rem; font-size:0.8rem;" onclick="saveApiUrl()">Save</button>
+      </div>
+      <div>
+        <a href="/Golden_Hour_Guardian_Pitch_Deck.pptx" class="btn btn-secondary" style="font-size:0.85rem;" download>
+          📊 Download Pitch Deck (.pptx)
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>
+      Golden Hour Guardian — Built for Paytm Build for India AI Hackathon • Bengaluru<br>
+      Strict 3-Tier Policy • Cryptographic Hash-Chained Audit Log • Zero Cloud PII Leakage
+    </p>
+  </footer>
+
+  <script>
+    const apiInput = document.getElementById('api-url');
+    const healthDot = document.getElementById('health-dot');
+    const healthText = document.getElementById('health-text');
+    const linkOfficer = document.getElementById('link-officer');
+    const linkVictim = document.getElementById('link-victim');
+
+    const stored = localStorage.getItem('guardian_api_base') || '';
+    apiInput.value = stored || window.location.origin;
+
+    function updateLinks(base) {
+      if (base && base !== window.location.origin) {
+        linkOfficer.href = '/officer/?api=' + encodeURIComponent(base);
+        linkVictim.href = '/victim/?api=' + encodeURIComponent(base);
+      } else {
+        linkOfficer.href = '/officer/';
+        linkVictim.href = '/victim/';
+      }
+    }
+
+    function checkHealth(base) {
+      const url = (base ? base.replace(/\/$/, '') : '') + '/health';
+      fetch(url)
+        .then(r => r.json())
+        .then(d => {
+          healthDot.style.background = '#10b981';
+          healthDot.style.boxShadow = '0 0 8px #10b981';
+          healthText.textContent = 'Backend: Online (' + (d.llm || 'Ready') + ')';
+        })
+        .catch(() => {
+          healthDot.style.background = '#f59e0b';
+          healthDot.style.boxShadow = '0 0 8px #f59e0b';
+          healthText.textContent = 'Backend: Standalone / Offline';
+        });
+    }
+
+    function saveApiUrl() {
+      const val = apiInput.value.trim().replace(/\/$/, '');
+      if (val) {
+        localStorage.setItem('guardian_api_base', val);
+      } else {
+        localStorage.removeItem('guardian_api_base');
+      }
+      updateLinks(val);
+      checkHealth(val);
+    }
+
+    updateLinks(stored);
+    checkHealth(stored || window.location.origin);
+  </script>
+</body>
+</html>

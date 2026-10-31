@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/officer", "destination": "/officer/index.html" },
+    { "source": "/victim", "destination": "/victim/index.html" }
+  ]
+}

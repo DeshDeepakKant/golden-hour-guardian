@@ -7,7 +7,10 @@
   const USER = params.get("user") || "usr_meena";
   // Device id (set by scripts/android.sh). The server, not this app, decides whether it is trusted.
   const DEVICE = params.get("device") || "";
-  const API = "/";   // same origin; absolute paths so it works from /victim/ and /victim
+  const apiParam = params.get("api");
+  const storedApi = typeof localStorage !== "undefined" ? localStorage.getItem("guardian_api_base") : "";
+  const rawBase = apiParam || window.GUARDIAN_API_BASE || storedApi || "";
+  const API = rawBase ? (rawBase.replace(/\/$/, "") + "/") : "/";
   const BCP47 = { en: "en-IN", hi: "hi-IN" };
   const MIN_PROTECTED_MS = 5000;   // keep "protected" visible before the guidance replaces it
 

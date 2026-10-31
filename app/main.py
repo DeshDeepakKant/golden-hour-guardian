@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import orchestrator_tasks, pending, tools
@@ -39,5 +40,13 @@ for _router in (meta.router, webhooks.router, cases.router, victim.router, strea
 # ============================================================================
 
 # Static mounts MUST stay after all API routes, or they shadow them.
+@app.get("/")
+async def root():
+    return FileResponse(WEB / "index.html")
+
+@app.get("/workflow.html")
+async def workflow_page():
+    return FileResponse(WEB / "workflow.html")
+
 app.mount("/officer", StaticFiles(directory=WEB / "officer", html=True), name="officer")
 app.mount("/victim", StaticFiles(directory=WEB / "victim", html=True), name="victim")

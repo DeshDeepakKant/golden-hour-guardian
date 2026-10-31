@@ -82,8 +82,15 @@
     return m[1] + m[2].slice(0, 1) + '***';
   }
   function pretty(s) { return clean(String(s || '').toLowerCase().replace(/_/g, ' ')); }
+  function getApiBase() {
+    var p = new URLSearchParams(window.location.search).get('api');
+    if (p) return p.replace(/\/$/, '');
+    var s = window.GUARDIAN_API_BASE || localStorage.getItem('guardian_api_base');
+    return s ? s.replace(/\/$/, '') : '';
+  }
   function api(path, opts) {
-    return fetch(path, opts).then(function (r) {
+    var url = getApiBase() + path;
+    return fetch(url, opts).then(function (r) {
       var d = r.headers.get('Date');
       if (d) { var t = Date.parse(d); if (!isNaN(t)) serverOffsetMs = t + 500 - Date.now(); }
       if (!r.ok) {
@@ -638,7 +645,8 @@
     }
   }
   function connect() {
-    var es = new EventSource('/events');
+    var base = getApiBase();
+    var es = new EventSource(base ? (base + '/events') : '/events');
     es.onopen = function () {
       $('banner').hidden = true;
       resyncSoon();   // initial load and every reconnect: re-fetch cases (debounced)
