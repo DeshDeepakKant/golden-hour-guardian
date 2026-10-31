@@ -1,0 +1,32 @@
+# Policy thresholds. Values are DEMO ASSUMPTIONS — replace with the partner's real policy.
+risk:
+  dismiss_below: 0.40          # score < this -> DISMISSED, no contact
+  auto_hold_at_or_above: 0.85  # score >= this -> reversible hold on victim's OWN outgoing payments, then verify
+  # between the two -> VERIFYING without a hold
+
+hold:
+  auto_expire_minutes: 60      # Tier-1 hold auto-expires unless confirmed fraud
+  max_without_officer_minutes: 120   # extending beyond this needs Tier-2 EXTEND_HOLD
+
+verification:
+  timeout_seconds: 120         # demo value; real world would be longer
+  retries: 1
+  untrusted_if_sim_change_within_hours: 72   # voice to registered number is NOT a trusted channel then
+
+marketing_suppression_minutes: 1440
+
+golden_hour_target_seconds: 600   # "protected in under 10 minutes" metric
+
+llm_guard:
+  banned_patterns:              # case-insensitive regex; any match -> fallback template + POLICY_BLOCKED event
+    - '\bOTP\b'
+    - '\bPIN\b'
+    - '\bCVV\b'
+    - 'password'
+    - 'share (your|the) code'
+    - 'refund (is )?guaranteed'
+    - 'we will refund'
+    - 'police (officer|department) here'
+    - 'digital arrest'
+    - 'pay (a )?fee'
+    - 'click (this|the) link'

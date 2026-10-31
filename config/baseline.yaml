@@ -1,0 +1,13 @@
+# SIMULATED MANUAL BASELINE — these are ASSUMPTIONS for the demo comparison, not measured data.
+# Replace with real numbers if a mentor or fraud-ops contact gives you any. Say so on stage.
+manual_process_seconds:
+  alert_queue_wait: 900          # alert waits for a free analyst
+  analyst_review: 420            # analyst opens ledger, device history
+  outbound_call_attempts: 600    # call centre reaches the customer
+  manual_hold_and_session_kill: 180
+  manual_evidence_compilation: 1500
+  customer_told_about_1930: 300
+
+# derived by the metrics module:
+#   baseline_t_protect = alert_queue_wait + analyst_review + outbound_call_attempts + manual_hold_and_session_kill
+#   baseline_t_ready   = baseline_t_protect + manual_evidence_compilation + customer_told_about_1930

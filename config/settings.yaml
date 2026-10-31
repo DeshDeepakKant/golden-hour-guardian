@@ -1,0 +1,17 @@
+app:
+  host: 127.0.0.1
+  port: 8000
+  db_path: data/guardian.db
+  demo_label: "PROTOTYPE — SIMULATED DATA"
+
+llm:
+  provider: ollama
+  base_url: http://127.0.0.1:11434
+  model: qwen3:4b          # alternatives: gemma3:4b ; set to "none" to force templates
+  think: false             # disable reasoning traces for latency
+  temperature: 0.2
+  timeout_s: 8
+  max_tokens: 300
+
+langs: [en, hi, te]        # te is optional; templates must exist for every listed lang
+default_lang: en

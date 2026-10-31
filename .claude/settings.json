@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make *)",
+      "Bash(.venv/bin/python *)",
+      "Bash(.venv/bin/pip install *)",
+      "Bash(python3 -m venv *)",
+      "Bash(pytest *)",
+      "Bash(curl -s http://127.0.0.1:8000*)",
+      "Bash(curl -s -X POST http://127.0.0.1:8000*)",
+      "Bash(curl -s http://127.0.0.1:11434*)",
+      "Bash(adb devices)",
+      "Bash(adb reverse *)",
+      "Bash(adb exec-out screencap *)",
+      "Bash(adb shell am start *)",
+      "Bash(bash scripts/*)",
+      "Bash(ollama list)",
+      "Bash(ollama ps)",
+      "Bash(git init)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git log *)"
+    ],
+    "deny": [
+      "Read(./.venv/**)",
+      "Read(./data/*.db)",
+      "Bash(git push *)",
+      "Bash(rm -rf *)"
+    ]
+  }
+}
