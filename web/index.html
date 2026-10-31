@@ -347,7 +347,11 @@
     const linkVictim = document.getElementById('link-victim');
 
     const stored = localStorage.getItem('guardian_api_base') || '';
-    apiInput.value = stored || window.location.origin;
+    const defaultBase = window.location.hostname.includes('vercel.app')
+      ? 'https://golden-hour-guardian-api.onrender.com'
+      : window.location.origin;
+    const activeBase = stored || defaultBase;
+    apiInput.value = activeBase;
 
     function updateLinks(base) {
       if (base && base !== window.location.origin) {
@@ -386,8 +390,8 @@
       checkHealth(val);
     }
 
-    updateLinks(stored);
-    checkHealth(stored || window.location.origin);
+    updateLinks(activeBase);
+    checkHealth(activeBase);
   </script>
 </body>
 </html>
