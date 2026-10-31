@@ -117,3 +117,18 @@ SPEC §12 demo acceptance passes twice in a row, once with Ollama stopped. `make
   to the five actions in CLAUDE.md. Contracts/schema/config unchanged.
 - Noise only: pytest-asyncio warns `asyncio_default_fixture_loop_scope` unset; starlette warns about httpx.
 - Next step: checkpoint H1 (approve contracts), then paste PROMPTS.md → P1.
+
+### 2026-10-31 — Session 1, Phase 1 + integration — DONE
+- Done: mockworld (68 users, 1205 txns, 5 scenarios), core-engine (all SPEC §7 endpoints, FSM,
+  tiers, audit chain, SSE; API_NOTES.md for UI agents), brain (templates en/hi/te, guard, rules
+  classifier, Ollama client, bench script). Integration needed no code fixes.
+- Tests: 127/127 (`make test-fast`).
+- Live run (GUARDIAN_VERIFY_TIMEOUT_S=15): ato→AWAITING_OFFICER T_protect 4.1 s → approve 3 decisions
+  → CLOSED, dispute partner call logged, audit ok; genuine→RELEASED (friction 2.3 s); inbound→
+  AWAITING_OFFICER T_protect 0.8 s; noresponse→AWAITING_OFFICER (officer_callback);
+  injection→ASKS_REFUND (0.5)→officer_callback, nothing auto-done. All audit chains verify.
+- Open: Ollama NOT installed on this machine → every brain call uses templates; live SLM path
+  untested. Verify prompts held in memory (lost on restart). Genuine stays RELEASED (no CLOSED).
+  Escalations reuse state NO_RESPONSE_ESCALATED (no other escalation state in frozen contract).
+  Hindi/Telugu strings in app/brain/templates.py need a native-speaker check (H5).
+- Next step: PROMPTS.md → P2.
